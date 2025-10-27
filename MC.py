@@ -101,7 +101,7 @@ def accepte_cfg(n1_list, n2_list, n1_new, n2_new, particle, E_0, T):
             return False
     
     
-def modif_occupation_list (occupation_list, n1_new, n2_new):
+def modif_occupation_arr (occupation_arr, n1_new, n2_new, n_max):
     """
     Modifie la liste des occupations en fonction de la nouvelle configuration acceptée
     
@@ -109,12 +109,13 @@ def modif_occupation_list (occupation_list, n1_new, n2_new):
         occupation_list (array): Liste des occupations des états quantiques
         n1_new (array): Nouvelle configuration des premiers nombres quantiques principaux des particules
         n2_new (array): Nouvelle configurationd seconds nombres quantiques principaux des particules
+        n_max (int): Valeur maximale des nombres quantiques principaux
         
     Outputs: 
-        occupation_list (array): Liste des occupations des états quantiques mise à jour
+        occupation_arr (array): Liste des occupations des états quantiques mise à jour
     """
     
     for n1_i, n2_i in zip(n1_new, n2_new):
-        occupation_list[n1_i, n2_i] += 1
+        occupation_arr[n1_i + n_max, n2_i + n_max] += 1
 
-    return occupation_list
+    return occupation_arr
