@@ -20,13 +20,13 @@ def L_box_std(N,T):
     """ Retourne l'unité de taille de boîte, telle que d = lambda (distance interatomique) """
     return np.sqrt(N) * lambda_th(T)
 
-def Energy_unit(L):
+def Energy_unit(Lbox):
     """ Retourne la valeur de l'unité d'énergie pour une boîte de taille L """
-    return hbar**2/(2*m_e) * (2*np.pi/L)**2 # unité d'énergie
+    return hbar**2/(2*m_e) * (2*np.pi/Lbox)**2 # unité d'énergie
 
-def wave_vector_unit(L):
+def wave_vector_unit(Lbox):
     """ Retourne la valeur de l'unité de vecteur d'onde pour une boîte de taille L """
-    return 2*np.pi/L # unité de vecteur d'onde
+    return 2*np.pi/Lbox # unité de vecteur d'onde
 
 # -----------------------------------------------------------------------------------
 """/!\ grandeurs numériques ADIMENSIONNEES /!\ """
@@ -56,8 +56,8 @@ def create_n_max(E_F,L,T):
 def CI(N, n_max):
     """ Retourne les listes n1,n2 des vecteurs d'onde ADIMENSIONNES des N électrons """
     #tirage aléatoire sans remise de N couples (n1,n2), avec 0 <= n1,n2 <= 2*n_max
-    values = np.random.choice(2*n_max+1, 2**n_max+1, size = N, replace = False) 
-    n1_list, n2_list = np.unravel_index(values, (2**n_max+1, 2**n_max+1))
+    values = np.random.choice((2*n_max+1) * (2*n_max+1), size = N, replace = False) 
+    n1_list, n2_list = np.unravel_index(values, (2*n_max+1, 2*n_max+1))
     n1_list -= n_max #on passe de [0,2n_max] à [-n_max,n_max]
     n2_list -= n_max #on passe de [0,2n_max] à [-n_max,n_max]
     return n1_list, n2_list
