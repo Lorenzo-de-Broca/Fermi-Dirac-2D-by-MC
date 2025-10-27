@@ -1,5 +1,5 @@
 import numpy as np
-from parameters import *
+from parameters import h, hbar, k_b, m_e
 import sys
 import os
 
