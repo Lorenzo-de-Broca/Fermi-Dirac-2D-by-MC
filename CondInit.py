@@ -50,7 +50,7 @@ def create_n_max(E_F,L,T):
     """ E_max ~= E_F + k_b * T """ 
     """ CLP --> N = g_s * pi * n_F^2""" # spin pris en compte dans l'input atm : N := N/2
     # n_F = int(np.ceil(np.sqrt(E_F)))
-    n_max = int.np.ceil(np.sqrt(E_F + kbT_adim(L,T)) * 1.5) #facteur 1.5 = marge de sécurité
+    n_max = int(np.ceil(np.sqrt(E_F + kbT_adim(L,T)) * 1.5)) #facteur 1.5 = marge de sécurité
     return n_max
     
 def CI(N, n_max):

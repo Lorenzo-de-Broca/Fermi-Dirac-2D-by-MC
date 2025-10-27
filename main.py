@@ -3,8 +3,8 @@ import yaml
 import matplotlib.pyplot as plt
 
 from MC import gen_cfg, accepte_cfg, modif_occupation_arr
-from parameters import h, hbar, k_b, m_e, E0, lambda_th
-from CondInit import CI, create_n_max, Energy_Fermi, wave_vector_Fermi
+from parameters import h, hbar, k_b, m_e
+from CondInit import CI, create_n_max, Energy_Fermi, wave_vector_Fermi, Energy_unit
 from plots import plot_occupation, plot_energy_distribution
 
 def load_input(file_path):
@@ -17,13 +17,9 @@ def main():
     """
     La fonction principale qui excécute la simulation Monte Carlo
     """
-    
+    # Lecture des paramètres depuis le fichier YAML
     input_file = input("Choose the YAML config file: ")
     config = load_input(input_file)
-    
-    # Lecture des paramètres depuis config.yaml
-    with open("config.yaml", "r") as f:
-        config = yaml.safe_load(f)
 
     T = config["T"]
     num_steps = config["step"]
@@ -33,9 +29,11 @@ def main():
     # Calcul des grandeurs physiques de la simulation
     E_f = Energy_Fermi(N)
     k_f = wave_vector_Fermi(E_f)
-    n_max = create_n_max(N, E_f)
+    n_max = create_n_max(E_f, L, T)
+    E0 = Energy_unit(L)
     
     # Initialisation des listes et variables 
+    print(f"N_max = {n_max:.0f}")
     occupation_arr = np.zeros((2 * n_max +1 , 2 * n_max + 1))
     step = 0
     
