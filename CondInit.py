@@ -1,5 +1,5 @@
 import numpy as np
-from parameters import *
+from parameters import h, hbar, k_b, m_e
 import sys
 import os
 
@@ -20,13 +20,13 @@ def L_box_std(N,T):
     """ Retourne l'unité de taille de boîte, telle que d = lambda (distance interatomique) """
     return np.sqrt(N) * lambda_th(T)
 
-def Energy_unit(L):
+def Energy_unit(Lbox):
     """ Retourne la valeur de l'unité d'énergie pour une boîte de taille L """
-    return hbar**2/(2*m_e) * (2*np.pi/L)**2 # unité d'énergie
+    return hbar**2/(2*m_e) * (2*np.pi/Lbox)**2 # unité d'énergie
 
-def wave_vector_unit(L):
+def wave_vector_unit(Lbox):
     """ Retourne la valeur de l'unité de vecteur d'onde pour une boîte de taille L """
-    return 2*np.pi/L # unité de vecteur d'onde
+    return 2*np.pi/Lbox # unité de vecteur d'onde
 
 # -----------------------------------------------------------------------------------
 """/!\ grandeurs numériques ADIMENSIONNEES /!\ """
