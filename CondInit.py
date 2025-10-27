@@ -56,8 +56,8 @@ def create_n_max(E_F,L,T):
 def CI(N, n_max):
     """ Retourne les listes n1,n2 des vecteurs d'onde ADIMENSIONNES des N électrons """
     #tirage aléatoire sans remise de N couples (n1,n2), avec 0 <= n1,n2 <= 2*n_max
-    values = np.random.choice(2*n_max+1, 2**n_max+1, size = N, replace = False) 
-    n1_list, n2_list = np.unravel_index(values, (2**n_max+1, 2**n_max+1))
+    values = np.random.choice((2*n_max+1) * (2*n_max+1), size = N, replace = False) 
+    n1_list, n2_list = np.unravel_index(values, (2*n_max+1, 2*n_max+1))
     n1_list -= n_max #on passe de [0,2n_max] à [-n_max,n_max]
     n2_list -= n_max #on passe de [0,2n_max] à [-n_max,n_max]
     return n1_list, n2_list

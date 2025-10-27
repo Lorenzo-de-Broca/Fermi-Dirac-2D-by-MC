@@ -26,7 +26,7 @@ def gen_cfg(n1_list, n2_list, n_max, N):
     prop_n2 = np.random.randint(-n_max, n_max + 1)
     
     # Vérification que la nouvelle configuration n'est pas déjà occupée
-    for i, n1_i, n2_i in enumerate(zip(n1_list, n2_list)):
+    for n1_i, n2_i in enumerate(zip(n1_list, n2_list)):
         if n1_i == prop_n1 and n2_i == prop_n2:
             # Si la configuration est déjà occupée, on retourne la configuration initiale
             print("The new configuration is already occupied. Keeping the old configuration.")
@@ -37,7 +37,7 @@ def gen_cfg(n1_list, n2_list, n_max, N):
     # Création des nouvelles configurations
     n1_new = np.copy(n1_list)
     n2_new = np.copy(n2_list)
-    n1_new[particle] = prop_n1  
+    n1_new[particle] = prop_n1
     n2_new[particle] = prop_n2    
     
     return(n1_new, n2_new, particle)

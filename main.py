@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from MC import gen_cfg, accepte_cfg, modif_occupation_arr
 from parameters import h, hbar, k_b, m_e
-from CondInit import CI, create_n_max, Energy_Fermi, wave_vector_Fermi, Energy_unit
+from CondInit import CI, create_n_max, Energy_Fermi, wave_vector_Fermi, Energy_unit, L_box_std
 from plots import plot_occupation, plot_energy_distribution
 
 def load_input(file_path):
@@ -23,14 +23,16 @@ def main():
 
     T = config["T"]
     num_steps = config["step"]
-    L = config["L"]
-    N = config["N"]/2   # On divise par 2 pour avoir le nombre de particules par spin 
+    L = config["L"]                 # A dimensioné
+    N = int(config["N"]/2)   # On divise par 2 pour avoir le nombre de particules par spin 
 
     # Calcul des grandeurs physiques de la simulation
+    L_box = L*L_box_std(config["N"], T)     # Vrai taille de la boite
     E_f = Energy_Fermi(N)
+    E0 = Energy_unit(L_box)
     k_f = wave_vector_Fermi(E_f)
-    n_max = create_n_max(E_f, L, T)
-    E0 = Energy_unit(L)
+    n_max = create_n_max(E_f, L_box, T)
+    
     
     # Initialisation des listes et variables 
     print(f"N_max = {n_max:.0f}")
@@ -38,7 +40,7 @@ def main():
     step = 0
     
     # Génération de la configuration initiale
-    n1_list, n2_list = CI(N, L, T, E_f, k_f)
+    n1_list, n2_list = CI(N, n_max)
 
     # Début de l'algorithme Monte Carlo
     for i in range(num_steps):
@@ -48,10 +50,10 @@ def main():
         if accepte_cfg(n1_list, n2_list, n1_new, n2_new, particle, E0, T):
             n1_list = n1_new
             n2_list = n2_new
-            modif_occupation_arr(occupation_arr, n1_new, n2_new)
+            modif_occupation_arr(occupation_arr, n1_new, n2_new, n_max)
         
         else:
-            modif_occupation_arr(occupation_arr, n1_list, n2_list)
+            modif_occupation_arr(occupation_arr, n1_list, n2_list, n_max)
 
     ## Trace les graphiques 
     
