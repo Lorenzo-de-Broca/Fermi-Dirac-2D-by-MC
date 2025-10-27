@@ -44,6 +44,8 @@ def main():
 
     # Début de l'algorithme Monte Carlo
     for i in range(num_steps):
+        if i % (num_steps // 10) == 0:
+            print(f"Progress: {i / num_steps * 100:.1f}%")
         step += 1
         n1_new, n2_new, particle = gen_cfg(n1_list, n2_list, n_max, N)
         

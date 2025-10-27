@@ -29,10 +29,10 @@ def gen_cfg(n1_list, n2_list, n_max, N):
     for n1_i, n2_i in enumerate(zip(n1_list, n2_list)):
         if n1_i == prop_n1 and n2_i == prop_n2:
             # Si la configuration est déjà occupée, on retourne la configuration initiale
-            print("The new configuration is already occupied. Keeping the old configuration.")
+            #print("The new configuration is already occupied. Keeping the old configuration.")
             return np.copy(n1_list), np.copy(n2_list)
        
-    print("The new configuration is not occupied yet. Let's try to accept it.")
+    #print("The new configuration is not occupied yet. Let's try to accept it.")
     
     # Création des nouvelles configurations
     n1_new = np.copy(n1_list)
@@ -72,32 +72,32 @@ def accepte_cfg(n1_list, n2_list, n1_new, n2_new, particle, E_0, T):
     delta_E = E_new - E_old
     
     if delta_E <= 0:
-        print("New configuration has a lower energy than before. The new configuraiton is accepted.")
+        #print("New configuration has a lower energy than before. The new configuraiton is accepted.")
         return True
 
     if delta_E > 0:
         prob = np.exp(- delta_E * E_0 / (k_b * T))
         rand = np.random.rand()
         if rand < prob:
-            print("New configuration accepted based on Metropolis criterion.")
+            #print("New configuration accepted based on Metropolis criterion.")
             return True
         else:
-            print("New configuration rejected based on Metropolis criterion.")
+            #print("New configuration rejected based on Metropolis criterion.")
             return False
     
     
     # Critère d'acceptation de Metropolis
     if delta_E < 0:
-        print("New configuration accepted (lower energy).")
+        #print("New configuration accepted (lower energy).")
         return True
     else:
         prob = np.exp(-delta_E / (k_b * T))
         rand = np.random.rand()
         if rand < prob:
-            print("New configuration accepted (Metropolis criterion).")
+            #print("New configuration accepted (Metropolis criterion).")
             return True
         else:
-            print("New configuration rejected.")
+            #print("New configuration rejected.")
             return False
     
     
