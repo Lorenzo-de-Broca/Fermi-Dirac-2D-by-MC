@@ -3,31 +3,30 @@ import numpy as np
 
 def plot_occupation(occupation_arr, n_max, step, T):
     """
-    Fonction pour tracer la densité de probabilité d'occupation des états quantiques
-    et la densité d'energie en fonction des nombres quantiques principaux n1 et n2.
-    
-    Args:
-        occupation_arr (array): Liste des occupations des états quantiques
-        n_max (int): Nombre maximum pour les nombres quantiques principaux
-        step (int): Numéro de l'étape actuelle de la simulation
-        T (float): Température physique du système
-        
-    Outputs:
-        Un graphique affichant la carte d'occupation des états quantiques
+    Version discrète avec points distincts (scatter plot).
     """
-    
-    density_occupation_arr = occupation_arr/step  # normalisation pour une meilleure visualisation
-    
+    n1, n2 = np.indices(occupation_arr.shape)-n_max
+    occ = occupation_arr / step
+
     plt.figure(figsize=(8,6))
-    plt.imshow(density_occupation_arr, origin='lower', extent=[-n_max, n_max, -n_max, n_max], cmap='viridis', interpolation='nearest')
+    plt.scatter(
+        n1.flatten(),
+        n2.flatten(),
+        c=occ.flatten(),
+        cmap='viridis',
+        marker='s',   # carré
+        s=80,         # taille du carré
+        edgecolor='k' # bord noir
+    )
+
     plt.colorbar(label='Occupation')
-    plt.title(f'Carte d\'occupation des états quantiques à l\'étape {step} et T={T}K')
+    plt.title(f"Occupation discrète des états quantiques à l'étape {step} (T={T} K)")
     plt.xlabel('n1')
     plt.ylabel('n2')
-    plt.grid()
-    plt.show()  
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.show()
     
-def plot_energy_distribution(occupation_arr, E0, n_max, step, T):
+def plot_energy_distribution(occupation_arr, n_max, step, T):
     """
     Fonction pour tracer la distribution d'énergie des particules dans le système.
     
@@ -42,20 +41,21 @@ def plot_energy_distribution(occupation_arr, E0, n_max, step, T):
         Un graphique affichant la distribution d'énergie des particules
     """
     
-    energy_levels = []
-    occupation_levels = []
+    energy_levels = np.zeros(2*(n_max*n_max)+1)
+    degenerescence_levels = np.zeros(2*(n_max*n_max)+1)
+    occupation_levels = np.zeros(2*(n_max*n_max)+1)
     
     for n1 in range(-n_max, n_max + 1):
         for n2 in range(-n_max, n_max + 1):
-            energy = E0 * (n1**2 + n2**2)
-            occupation = occupation_arr[n1 + n_max, n2 + n_max] / step
-            energy_levels.append(energy)
-            occupation_levels.append(occupation)
-    
+            energy = int((n1**2 + n2**2))
+            occupation_levels[energy] += occupation_arr[n1 + n_max, n2 + n_max]
+            degenerescence_levels[energy] += 1
+            energy_levels[energy] = energy
+            
     plt.figure(figsize=(8,6))
-    plt.scatter(energy_levels, occupation_levels, alpha=0.5)
+    plt.plot(energy_levels, occupation_levels, "r+", markersize=8, label='Occupation des niveaux d\'énergie')
     plt.title(f'Distribution d\'énergie des particules à l\'étape {step} et T={T}K')
-    plt.xlabel('Énergie')
+    plt.xlabel('Énergie (adimensionnée)')
     plt.ylabel('Occupation')
     plt.grid()
     plt.show()

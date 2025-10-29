@@ -6,3 +6,4 @@ h = 6,62607015e-34 #J.s
 hbar = h/(2*np.pi) #J.s.rad^(-1)
 k_b = 1,380649e-23 #J.K^(-1)
 m_e = 9,109e-31 #kg (masse de l'électron)
+eV = 1.6e-19 #J (électron-volt)
