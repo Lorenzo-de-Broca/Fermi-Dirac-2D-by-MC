@@ -47,7 +47,7 @@ def plot_energy_distribution(occupation_arr, E0, n_max, step, T):
     
     for n1 in range(-n_max, n_max + 1):
         for n2 in range(-n_max, n_max + 1):
-            energy = E0 * (n1**2 + n2**2)
+            energy = (n1**2 + n2**2)
             occupation = occupation_arr[n1 + n_max, n2 + n_max] / step
             energy_levels.append(energy)
             occupation_levels.append(occupation)
