@@ -16,10 +16,10 @@ def lambda_th(T):
         print("Warning: lambda_th(T) is defined only for T > 0K. In this simulation T = 0K so lambda_th is None.")
         return None
     
-def L_box_unit(N,T = 10):
-    """ Retourne la taille de boîte physique dite "de transition" pour N particules à T = 10K 
+def L_box_unit(N,T = 100):
+    """ Retourne la taille de boîte physique dite "de transition" pour N particules à T = 100K 
     telle que d_inter_e- ~ lambda (transition entre régime classique et quantique) """
-    #pour T >> 10K, régime classique ; pour T <~ 10K, régime quantique 
+    #pour T >> 100K, régime classique ; pour T <~ 100K, régime quantique 
     return np.sqrt(N) * lambda_th(T)
 
 def L_box_std(N,T): # useless at the moment
