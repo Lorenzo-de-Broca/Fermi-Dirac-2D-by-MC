@@ -10,13 +10,13 @@ def plot_occupation(occupation_arr, n_max, step, T):
         occupation_arr (array): Liste des occupations des états quantiques
         n_max (int): Nombre maximum pour les nombres quantiques principaux
         step (int): Numéro de l'étape actuelle de la simulation
-        T (float): Température du système
+        T (float): Température physique du système
         
     Outputs:
         Un graphique affichant la carte d'occupation des états quantiques
     """
     
-    density_occupation_arr = occupation_arr/step  # Transpose pour une meilleure visualisation
+    density_occupation_arr = occupation_arr/step  # normalisation pour une meilleure visualisation
     
     plt.figure(figsize=(8,6))
     plt.imshow(density_occupation_arr, origin='lower', extent=[-n_max, n_max, -n_max, n_max], cmap='viridis', interpolation='nearest')
