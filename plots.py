@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from CondInit import kbT_adim, mu_adim_fct, Fermi_Dirac_distribution
+
 def plot_occupation(occupation_arr, n_max, step, T):
     """
     Version discrète avec points distincts (scatter plot).
@@ -26,7 +28,7 @@ def plot_occupation(occupation_arr, n_max, step, T):
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.show()
     
-def plot_energy_distribution(occupation_arr, n_max, Ef, step, T):
+def plot_energy_distribution(occupation_arr, n_max, Ef, step, T, L_box):
     """
     Fonction pour tracer la distribution d'énergie des particules dans le système.
     
@@ -41,11 +43,12 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, T):
         Un graphique affichant la distribution d'énergie des particules
     """
     
+    # Initialisation de tableaux d'énergie
     energy_levels = np.zeros(2*(n_max*n_max)+1)
     degenerescence_levels = np.zeros(2*(n_max*n_max)+1)
     occupation_levels = np.zeros(2*(n_max*n_max)+1)
 
-    
+    # Calcul des niveaux d'énergie, de la dégénérescence et de l'occupation    
     for n1 in range(-n_max, n_max + 1):
         for n2 in range(-n_max, n_max + 1):
             energy = int((n1**2 + n2**2))
@@ -60,13 +63,21 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, T):
     degenerescence_levels_masked = degenerescence_levels[mask]
 
     # Pour tracer l'énergie de Fermi
-    y_fermi = [0,np.max(occupation_levels)]
-    x_fermi = [Ef, Ef]
+    y_E_Fermi = [0,np.max(occupation_levels)]
+    x_E_Fermi = [Ef, Ef]
+
+    # Calcul de la distribution de Fermi-Dirac théorique pour comparer 
+    x_Fermi_Dirac = np.linspace(0, np.max(energy_levels_masked), 500   )
+    
+    mu_adim = mu_adim_fct (L=L_box, T=T, E_f=Ef)
+    T_adim = kbT_adim(L_box, T)
+    y_Fermi_Dirac = Fermi_Dirac_distribution(x_Fermi_Dirac, mu_adim,T_adim)
 
     plt.figure(figsize=(8,6))
     #plt.plot(energy_levels, occupation_levels, "r", markersize=8, label='Occupation des niveaux d\'énergie')
     plt.plot(energy_levels_masked, occupation_levels_masked/degenerescence_levels_masked, "b+", markersize=5, label='Occupation par niveau d\'énergie sans dégénérescence')
-    plt.plot(x_fermi, y_fermi, 'r--', label='Énergie de Fermi')
+    plt.plot(x_E_Fermi, y_E_Fermi, 'r--', label='Énergie de Fermi')
+    plt.plot(x_Fermi_Dirac, y_Fermi_Dirac, 'g-', label='Distribution de Fermi-Dirac théorique')
     plt.legend()
     plt.title(f'Distribution d\'énergie des particules à l\'étape {step} et T={T}K')
     plt.xlabel('Énergie (adimensionnée)')

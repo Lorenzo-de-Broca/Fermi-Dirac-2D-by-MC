@@ -43,6 +43,17 @@ def kbT_adim(L,T):
     E_0 = Energy_unit(L)
     return (k_b * T) / E_0
 
+def mu_adim_fct (L,T,E_f):
+    """Retourne le potentiel chimique adimensionné à la température T (en K)
+    inputs: 
+        - L : taille physique de la boîte
+        - T : température physique en K   
+        - E_f : énergie de Fermi adimensionnée
+    """
+    T_adim = kbT_adim(L,T)
+    mu_adim = T_adim * np.log(np.exp(E_f/T_adim)-1)
+    return (mu_adim)
+
 def Energy_Fermi_adim(N):
     """ Retourne l'énergie de Fermi adimensionnée """
     return N/(2*np.pi)
@@ -94,5 +105,18 @@ def CI_lowest_E(N, n_max):
     n2_list = state_sorted_by_E[:N, 1]
     return n1_list, n2_list
 
+def Fermi_Dirac_distribution(E_adim, mu_adim, T_adim):
+    """ 
+    Calcule la distribution de Fermi Dirac pour une énergie et une température donnée.
+    
+    Args : 
+        - E_adim (float) : énergie adimensionnée
+        - mu_adim (float) : potentiel chimique adimensionné  
+        - T_adim (float) : température adimensionnée
+    """
+    return(1/(np.exp((E_adim-mu_adim)/T_adim)))
+    
+    
+    
 def occupations_0(n_max):
     return np.zeros((2*n_max+1, 2*n_max+1))
