@@ -76,9 +76,9 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, T, L_box):
 
     plt.figure(figsize=(8,6))
     #plt.plot(energy_levels, occupation_levels, "r", markersize=8, label='Occupation des niveaux d\'énergie')
-    plt.plot(energy_levels_masked, occupation_levels_masked/degenerescence_levels_masked, "b+", markersize=5, label='Occupation par niveau d\'énergie sans dégénérescence')
-    plt.plot(x_E_Fermi, y_E_Fermi, 'r--', label='Énergie de Fermi')
-    plt.plot(x_E_Fermi_kbT, y_E_Fermi, 'g--', label=f'Énergie de Fermi + k_b*T adimensionnée : {Ef + T_adim:.2f}')
+    plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), "b+", markersize=5, label='Occupation par niveau d\'énergie sans dégénérescence')
+    plt.plot(x_E_Fermi, y_E_Fermi, 'r--', label=f'Énergie de Fermi : {Ef:.2f} adimensionnée')
+    plt.plot(x_E_Fermi_kbT, y_E_Fermi, 'g--', label=f'Énergie de Fermi + k_b*T : {Ef + T_adim:.2f} adimensionnée')
 
     plt.plot(x_Fermi_Dirac, y_Fermi_Dirac, 'k-', label='Distribution de Fermi-Dirac théorique')
     plt.legend()

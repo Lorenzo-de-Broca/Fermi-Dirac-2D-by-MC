@@ -114,7 +114,7 @@ def Fermi_Dirac_distribution(E_adim, mu_adim, T_adim):
         - mu_adim (float) : potentiel chimique adimensionné  
         - T_adim (float) : température adimensionnée
     """
-    return(1/(np.exp((E_adim-mu_adim)/T_adim)))
+    return(1/(np.exp((E_adim-mu_adim)/T_adim)+1))
     
     
     
