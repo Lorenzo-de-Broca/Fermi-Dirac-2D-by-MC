@@ -3,7 +3,7 @@ import yaml
 import matplotlib.pyplot as plt
 
 from MC import gen_cfg, accepte_cfg, modif_occupation_arr
-from parameters import h, hbar, k_b, m_e
+from parameters import h, hbar, k_b, m_e, eV
 from CondInit import CI, create_n_max, Energy_Fermi, wave_vector_Fermi, Energy_unit, L_box_std, kbT_adim
 from plots import plot_occupation, plot_energy_distribution
 
@@ -30,7 +30,7 @@ def main():
     L_box = L*L_box_std(config["N"], T)                     # Vrai taille de la boite
     E0 = Energy_unit(L_box)
     T_adim = kbT_adim(L_box, T)
-    E_f = Energy_Fermi(N)
+    E_f = Energy_Fermi(N)* E0 *eV
     
     k_f = wave_vector_Fermi(E_f)
     n_max = create_n_max(E_f, L_box, T)
@@ -38,8 +38,9 @@ def main():
     # Affichage des paramètres pour l'initialisation de la configuration
     print(f"Température T = {T} K")
     print(f"Number of particules N = {N*2} (avec spin)")
-    print(f"Size of the box L = {L_box:.2e} m")
-    print(f"Fermi energy E_f = {E_f:.2e} J")
+    print(f"Size of the box L = {L_box*1e9:.2e} nm")
+    print(f"Fermi energy E_f = {E_f*E0*eV:.2e} eV")
+    print(f"Adim Fermi energy E_f = {E_f:.2e} adim")
     print(f"Maximal quantum number n_max = {n_max:.0f}")
     print(f"Number of MC steps = {num_steps}")
     
@@ -80,7 +81,7 @@ def main():
     ## Trace les graphiques 
     
     plot_occupation(occupation_arr, n_max, step, T)
-    plot_energy_distribution(occupation_arr, E0, n_max, step, T)
+    plot_energy_distribution(occupation_arr, n_max, step, T)
     
     return()
 
