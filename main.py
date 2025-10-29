@@ -30,8 +30,7 @@ def main():
     L_box = L*L_box_std(config["N"], T)                     # Vrai taille de la boite
     E0 = Energy_unit(L_box)
     T_adim = kbT_adim(L_box, T)
-    E_f = Energy_Fermi(N)* E0 *eV
-    
+    E_f = Energy_Fermi(N)
     k_f = wave_vector_Fermi(E_f)
     n_max = create_n_max(E_f, L_box, T)
     
@@ -81,7 +80,7 @@ def main():
     ## Trace les graphiques 
     
     plot_occupation(occupation_arr, n_max, step, T)
-    plot_energy_distribution(occupation_arr, n_max, step, T)
+    plot_energy_distribution(occupation_arr, n_max, E_f, step, T)
     
     return()
 
