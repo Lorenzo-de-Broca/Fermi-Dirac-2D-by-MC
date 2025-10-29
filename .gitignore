@@ -1,3 +1,8 @@
+# nos fichiers à ignorer
+test.py
+input.yaml
+occupations.npz
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
