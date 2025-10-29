@@ -6,7 +6,7 @@ import argparse
 from MC import gen_cfg, accepte_cfg, modif_occupation_arr
 from parameters import h, hbar, k_b, m_e, conv_J_eV
 from CondInit import CI_lowest_E, create_n_max, Energy_Fermi_adim, wave_vector_Fermi_adim, \
-    Energy_unit, wave_vector_unit, lambda_th, L_box_unit, kbT_adim
+    Energy_unit, wave_vector_unit, lambda_th, L_box_unit, kbT_adim, mu_adim_fct
 from plots import plot_occupation, plot_energy_distribution
 
 def load_input(file_path):
@@ -36,6 +36,7 @@ def main(input_file):
     E_f = Energy_Fermi_adim(2*N)  # = Nréel / (2*pi)
     k_f = wave_vector_Fermi_adim(E_f) # = sqrt(E_f)
     n_max = create_n_max(E_f, T_adim) # ~ np.sqrt(E_F + kbT) * 1.5
+    mu_adim = mu_adim_fct(L_box, T, E_f)
     
     # Affichage des paramètres pour l'initialisation de la configuration
     print(f"T = {T} K")
@@ -46,6 +47,7 @@ def main(input_file):
     print(f"E0 = {E0*conv_J_eV:.2e} eV")
     print(f"E_F = {E_f*E0*conv_J_eV:.2e} eV")
     print(f"E_F_adim = {E_f:.2e} ")
+    print(f"mu_adim = {mu_adim:.2f}")
     print(f"Maximal quantum number n_max = {n_max:.0f}")
     print(f"Number of MC steps = {num_steps}")
     
@@ -95,14 +97,15 @@ def main(input_file):
     # Sauvegarde finale
     np.savez_compressed("occupations.npz", *saved_occuaptions)
     
-    #print("Final occupation state:")
-    #print(occupation_step)  
+    print("Final occupation state:")
+    print(occupation_step)  
+    
     print(f"Simulation completed. Acceptance ratio: {number_of_acceptations / num_steps * 100:.2f}%")
     
     ## Trace les graphiques 
     
     plot_occupation(occupation_arr, n_max, step, T)
-    plot_energy_distribution(occupation_arr, n_max, E_f, step, T, L_box)
+    plot_energy_distribution(occupation_arr, n_max, E_f, step, N, T, L_box)
     
     return()
 
