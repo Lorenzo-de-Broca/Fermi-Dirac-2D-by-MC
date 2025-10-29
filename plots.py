@@ -78,7 +78,7 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, T, L):
     plt.ylabel('Occupation')
     plt.grid()
     plt.show()
-    
+    """
     plt.plot(energy_levels_masked, degenerescence_levels_masked, "g+", markersize=8, label='Dégénérescence des niveaux d\'énergie')
     plt.legend()
     plt.title(f'Dégénérescence des niveaux d\'énergie à l\'étape {step} et T={T}K')
@@ -86,5 +86,60 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, T, L):
     plt.ylabel('Dégénérescence')
     plt.grid()
     plt.show()
+    """
+
+
+def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, T, Tvalues, L):
+    """
+    Fonction pour tracer la distribution d'énergie des particules dans le système.
     
+    Args:
+        occupation_arr (array): Liste des occupations des états quantiques
+        E0 (float): Constante d'énergie
+        n_max (int): Nombre maximum pour les nombres quantiques principaux
+        step (int): Numéro de l'étape actuelle de la simulation
+        T (float): Température du système
+        
+    Outputs:
+        Un graphique affichant la distribution d'énergie des particules
+    """
     
+    energy_levels = np.zeros(2*(n_max*n_max)+1)
+    degenerescence_levels = np.zeros(2*(n_max*n_max)+1)
+    occupation_levels = np.zeros(2*(n_max*n_max)+1)
+
+    for n1 in range(-n_max, n_max + 1):
+        for n2 in range(-n_max, n_max + 1):
+            energy = int((n1**2 + n2**2))
+            occupation_levels[energy] += occupation_arr[n1 + n_max, n2 + n_max]
+            degenerescence_levels[energy] += 1
+            energy_levels[energy] = energy
+
+    # mask to remove zero degenerescence levels
+    mask = degenerescence_levels > 0
+    energy_levels_masked = energy_levels[mask]
+    occupation_levels_masked = occupation_levels[mask]
+    degenerescence_levels_masked = degenerescence_levels[mask]
+
+    if T == np.min(Tvalues):
+        plt.figure(figsize=(8,6))
+        # Pour tracer l'énergie de Fermi
+        y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
+        x_fermi = [Ef, Ef]
+        plt.plot(x_fermi, y_fermi, 'r--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
+    plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), \
+        label='T = {:.0f}K'.format(T))#, markersize=5, "b+",
+    if T == np.max(Tvalues):
+        # Pour tracer l'énergie de Fermi
+        y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
+        x_fermi = [Ef, Ef]
+        plt.plot(x_fermi, y_fermi, 'r--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
+        #affichage des courbes pour chaque T
+        plt.legend()
+        plt.title(f'Distribution d\'énergie des particules à l\'étape {step} pour différentes températures')
+        plt.xlabel('Énergie (adimensionnée)')
+        plt.xlim(0, 4*Ef)
+        plt.ylabel('Occupation')
+        plt.grid()
+        plt.show()
+     
