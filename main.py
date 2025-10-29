@@ -102,7 +102,7 @@ def main(input_file):
     ## Trace les graphiques 
     
     plot_occupation(occupation_arr, n_max, step, T)
-    plot_energy_distribution(occupation_arr, n_max, E_f, step, T)
+    plot_energy_distribution(occupation_arr, n_max, E_f, step, T, L_box)
     
     return()
 

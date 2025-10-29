@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from CondInit import kbT_adim
+
 def plot_occupation(occupation_arr, n_max, step, T):
     """
     Version discrète avec points distincts (scatter plot).
@@ -26,7 +28,7 @@ def plot_occupation(occupation_arr, n_max, step, T):
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.show()
     
-def plot_energy_distribution(occupation_arr, n_max, Ef, step, T):
+def plot_energy_distribution(occupation_arr, n_max, Ef, step, T, L):
     """
     Fonction pour tracer la distribution d'énergie des particules dans le système.
     
@@ -60,13 +62,16 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, T):
     degenerescence_levels_masked = degenerescence_levels[mask]
 
     # Pour tracer l'énergie de Fermi
-    y_fermi = [0,np.max(occupation_levels)]
+    y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
     x_fermi = [Ef, Ef]
+    T_adim = kbT_adim(L,T) # dans ce contexte, T est déjà adimensionné
+    x_fermi_kbT = [Ef + T_adim, Ef + T_adim]
 
     plt.figure(figsize=(8,6))
     #plt.plot(energy_levels, occupation_levels, "r", markersize=8, label='Occupation des niveaux d\'énergie')
-    plt.plot(energy_levels_masked, occupation_levels_masked/degenerescence_levels_masked, "b+", markersize=5, label='Occupation par niveau d\'énergie sans dégénérescence')
-    plt.plot(x_fermi, y_fermi, 'r--', label='Énergie de Fermi')
+    plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), "b+", markersize=5, label='Occupation par niveau d\'énergie sans dégénérescence')
+    plt.plot(x_fermi, y_fermi, 'r--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
+    plt.plot(x_fermi_kbT, y_fermi, 'g--', label=f'Énergie de Fermi + k_b*T adimensionnée : {Ef + T_adim:.2f}')
     plt.legend()
     plt.title(f'Distribution d\'énergie des particules à l\'étape {step} et T={T}K')
     plt.xlabel('Énergie (adimensionnée)')
