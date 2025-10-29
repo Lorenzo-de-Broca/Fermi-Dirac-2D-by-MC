@@ -1,6 +1,7 @@
 import numpy as np
 import yaml
 import matplotlib.pyplot as plt
+import argparse
 
 from MC import gen_cfg, accepte_cfg, modif_occupation_arr
 from parameters import h, hbar, k_b, m_e, conv_J_eV
@@ -13,12 +14,12 @@ def load_input(file_path):
         config = yaml.safe_load(f)
     return config
 
-def main():
+def main(input_file):
     """
     La fonction principale qui excécute la simulation Monte Carlo
     """
     # Lecture des paramètres depuis le fichier YAML
-    input_file = input("Choose the YAML config file: ")
+    print(f"Loading configuration from file : {input_file}")
     config = load_input(input_file)
 
     T = config["T"]
@@ -27,7 +28,7 @@ def main():
     N = int(config["N"]/2)   # On divise par 2 pour avoir le nombre de particules par spin 
 
     # Calcul des grandeurs physiques de la simulation
-    L_box = L*L_box_unit(config["N"], T)                     # Vrai taille de la boite
+    L_box = L*L_box_unit(config["N"])                     # Vrai taille de la boite
     E0 = Energy_unit(L_box)
     k0 = wave_vector_unit(L_box)
     #  Calcul des grandeurs adimensionnées de la simulation
@@ -48,6 +49,7 @@ def main():
     
     # Initialisation des listes et variables 
     occupation_arr = np.zeros((2 * n_max + 1 , 2 * n_max + 1))
+    saved_occuaptions = []                                           # Liste où on stocke les occupations à chaque étape
     step = 0
     
     # Génération de la configuration initiale
@@ -64,7 +66,9 @@ def main():
     for i in range(num_steps):
         if i % (num_steps // 10) == 0:
             print(f"Progress: {i / num_steps * 100:.1f}%")
-        step += 1
+        
+        if step % 100 == 0:
+            saved_occuaptions.append(occupation_step.copy())  # on stocke la matrice
         
         # Génération d'une nouvelle configuration proposée
         n1_new, n2_new, particle = gen_cfg(n1_list, n2_list, occupation_step, n_max, N)
@@ -79,6 +83,13 @@ def main():
         else:
             accepted = False    
             modif_occupation_arr(occupation_arr, occupation_step, accepted, n1_list, n2_list, n1_new, n2_new, n_max, particle)
+        
+        step += 1
+        
+    print("Monte Carlo simulation completed.")
+    
+    # Sauvegarde finale
+    np.savez_compressed("occupations.npz", *saved_occuaptions)
     
     print("Final occupation state:")
     print(occupation_step)  
@@ -93,4 +104,14 @@ def main():
 
 if __name__ == "__main__":
     
-    main()
+    parser = argparse.ArgumentParser(description="Parser for simulation input file.")
+    
+    # Définition des arguments du parser
+    parser.add_argument("--file", type=str, required=True, help="Nom ou chemin du fichier de configuration YAML")
+
+    # Lecture des arguments
+    args = parser.parse_args()
+
+    input_file = args.file
+
+    main(input_file)

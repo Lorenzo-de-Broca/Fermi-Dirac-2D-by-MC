@@ -55,18 +55,18 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, T):
 
     # mask to remove zero degenerescence levels
     mask = degenerescence_levels > 0
-    energy_levels = energy_levels[mask]
-    occupation_levels = occupation_levels[mask]
-    degenerescence_levels = degenerescence_levels[mask]
+    energy_levels_masked = energy_levels[mask]
+    occupation_levels_masked = occupation_levels[mask]
+    degenerescence_levels_masked = degenerescence_levels[mask]
 
     # Pour tracer l'énergie de Fermi
     y_fermi = [0,np.max(occupation_levels)]
     x_fermi = [Ef, Ef]
-    
+
     plt.figure(figsize=(8,6))
-    plt.plot(energy_levels, occupation_levels, "r", markersize=8, label='Occupation des niveaux d\'énergie')
-    plt.plot(energy_levels, occupation_levels/degenerescence_levels, "b-", markersize=5, label='Occupation par niveau d\'énergie sans dégénérescence')
-    plt.plot(x_fermi, y_fermi, 'b--', label='Énergie de Fermi')
+    #plt.plot(energy_levels, occupation_levels, "r", markersize=8, label='Occupation des niveaux d\'énergie')
+    plt.plot(energy_levels_masked, occupation_levels_masked/degenerescence_levels_masked, "b+", markersize=5, label='Occupation par niveau d\'énergie sans dégénérescence')
+    plt.plot(x_fermi, y_fermi, 'r--', label='Énergie de Fermi')
     plt.legend()
     plt.title(f'Distribution d\'énergie des particules à l\'étape {step} et T={T}K')
     plt.xlabel('Énergie (adimensionnée)')
@@ -74,7 +74,7 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, T):
     plt.grid()
     plt.show()
     
-    plt.plot(energy_levels, degenerescence_levels, "g-", markersize=8, label='Dégénérescence des niveaux d\'énergie')
+    plt.plot(energy_levels_masked, degenerescence_levels_masked, "g+", markersize=8, label='Dégénérescence des niveaux d\'énergie')
     plt.legend()
     plt.title(f'Dégénérescence des niveaux d\'énergie à l\'étape {step} et T={T}K')
     plt.xlabel('Énergie (adimensionnée)')
@@ -82,4 +82,4 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, T):
     plt.grid()
     plt.show()
     
-       
+    
