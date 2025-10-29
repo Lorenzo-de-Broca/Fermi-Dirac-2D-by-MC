@@ -3,15 +3,15 @@ import yaml
 import matplotlib.pyplot as plt
 
 from MC import gen_cfg, accepte_cfg, modif_occupation_arr
-from parameters import h, hbar, k_b, m_e, eV
-from CondInit import CI, create_n_max, Energy_Fermi, wave_vector_Fermi, Energy_unit, L_box_std, kbT_adim
+from parameters import h, hbar, k_b, m_e, conv_J_eV
+from CondInit import CI_lowest_E, create_n_max, Energy_Fermi_adim, wave_vector_Fermi_adim, \
+    Energy_unit, wave_vector_unit, L_box_unit, kbT_adim
 from plots import plot_occupation, plot_energy_distribution
 
 def load_input(file_path):
     with open(file_path, 'r') as f:
         config = yaml.safe_load(f)
     return config
-
 
 def main():
     """
@@ -27,20 +27,22 @@ def main():
     N = int(config["N"]/2)   # On divise par 2 pour avoir le nombre de particules par spin 
 
     # Calcul des grandeurs physiques de la simulation
-    L_box = L*L_box_std(config["N"], T)                     # Vrai taille de la boite
+    L_box = L*L_box_unit(config["N"], T)                     # Vrai taille de la boite
     E0 = Energy_unit(L_box)
-    T_adim = kbT_adim(L_box, T)
-    E_f = Energy_Fermi(N)* E0 *eV
-    
-    k_f = wave_vector_Fermi(E_f)
-    n_max = create_n_max(E_f, L_box, T)
+    k0 = wave_vector_unit(L_box)
+    #  Calcul des grandeurs adimensionnées de la simulation
+    T_adim = kbT_adim(L_box, T) # = k_b * T / E0
+    E_f = Energy_Fermi_adim(N)  # = N / (2*pi)
+    k_f = wave_vector_Fermi_adim(E_f) # = sqrt(E_f)
+    n_max = create_n_max(E_f, T_adim) # ~ np.sqrt(E_F + kbT) * 1.5
     
     # Affichage des paramètres pour l'initialisation de la configuration
-    print(f"Température T = {T} K")
-    print(f"Number of particules N = {N*2} (avec spin)")
-    print(f"Size of the box L = {L_box*1e9:.2e} nm")
-    print(f"Fermi energy E_f = {E_f*E0*eV:.2e} eV")
-    print(f"Adim Fermi energy E_f = {E_f:.2e} adim")
+    print(f"T = {T} K")
+    print(f"N = {N*2} (avec spin)")
+    print(f"L = {L_box*1e9:.2e} nm")
+    print(f"E0 = {E0*conv_J_eV:.2e} eV")
+    print(f"E_F = {E_f*E0*conv_J_eV:.2e} eV")
+    print(f"E_F_adim = {E_f:.2e} ")
     print(f"Maximal quantum number n_max = {n_max:.0f}")
     print(f"Number of MC steps = {num_steps}")
     
@@ -49,7 +51,7 @@ def main():
     step = 0
     
     # Génération de la configuration initiale
-    n1_list, n2_list = CI(N, n_max)
+    n1_list, n2_list = CI_lowest_E(N, n_max)
     occupation_step = np.zeros((2 * n_max + 1 , 2 * n_max + 1))
     for i in range(N):
         occupation_step[n1_list[i]+n_max, n2_list[i]+n_max] += 1
@@ -77,7 +79,10 @@ def main():
         else:
             accepted = False    
             modif_occupation_arr(occupation_arr, occupation_step, accepted, n1_list, n2_list, n1_new, n2_new, n_max, particle)
-
+    
+    print("Final occupation state:")
+    print(occupation_step)  
+    
     ## Trace les graphiques 
     
     plot_occupation(occupation_arr, n_max, step, T)
