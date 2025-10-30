@@ -151,10 +151,6 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, T, Tvalues,
     plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), \
         label='T = {:.0f}K'.format(T))#, markersize=5, "b+",
     if T == np.max(Tvalues):
-        # Pour tracer l'énergie de Fermi
-        y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
-        x_fermi = [Ef, Ef]
-        plt.plot(x_fermi, y_fermi, 'r--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
         #affichage des courbes pour chaque T
         plt.legend()
         plt.title(f'Distribution d\'énergie des particules à l\'étape {step} pour différentes températures')
