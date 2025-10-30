@@ -1,7 +1,0 @@
-T: 10
-step: 10000
-L: 1
-N: 100
-Tmin: 0
-Tmax: 200
-Ntemp: 6
