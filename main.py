@@ -54,7 +54,7 @@ def simpleMC(input_file = "input.yaml"):
     
     # Initialisation des listes et variables 
     occupation_arr = np.zeros((2 * n_max + 1 , 2 * n_max + 1))
-    saved_occuaptions = []                                           # Liste où on stocke les occupations à chaque étape
+    saved_occuaptions = []       # Liste où on stocke les occupations à chaque étape
     step = 0
     
     # Génération de la configuration initiale
