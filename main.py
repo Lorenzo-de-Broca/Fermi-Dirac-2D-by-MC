@@ -302,7 +302,7 @@ def MC_multiN(input_file = "input.yaml"):
         #print("Initial occupation state:")
         #print(occupation_step)  
         
-        print(f"Starting simulation for N = {N:.0e}...")
+        print(f"Starting simulation for N = {N*2}...")
         # Début de l'algorithme Monte Carlo
         number_of_acceptations = 0
         for i in range(num_steps):

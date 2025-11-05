@@ -336,10 +336,10 @@ def plot_mu_vs_N(N_values, mu_values, mu_values_fit, L_box, T):
     plt.figure(figsize=(8,6))
 
     valN = np.linspace(np.min(N_values),np.max(N_values),1000) #N sont tjrs divisés par 2 pr le spin
-    plt.plot(valN, mu_adim_fct(L_box,T,Energy_Fermi_adim(valN*2)), label="valeurs théoriques")
+    plt.plot(valN*2, mu_adim_fct(L_box,T,Energy_Fermi_adim(valN*2)), label="valeurs théoriques")
     plt.plot(N_values*2, mu_values, 'r+', markersize = markersize, label="Mu estimés par simulation (recherche de FD(E) = 1/2)")
     plt.plot(N_values*2, mu_values_fit, 'g+', markersize = markersize, label="Mu estimés par simulation (fit de Fermi-Dirac)")
-    plt.title('Potentiel chimique adimensionné en fonction de N (T = {T}K)', fontsize=title)
+    plt.title(f'Potentiel chimique adimensionné en fonction de N (T = {T} K)', fontsize=title)
     plt.xlabel('N', fontsize=label)
     plt.ylabel('mu_adim', fontsize=label)
     plt.legend(fontsize=legend)
