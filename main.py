@@ -8,6 +8,8 @@ from parameters import h, hbar, k_b, m_e, conv_J_eV
 from CondInit import CI_lowest_E, create_n_max, Energy_Fermi_adim, wave_vector_Fermi_adim, \
     Energy_unit, wave_vector_unit, lambda_th, L_box_unit, kbT_adim, mu_adim_fct
 from plots import plot_occupation, plot_energy_distribution, plot_energy_distribution_multiT
+from fit import fit_fermi_dirac
+
 
 def load_input(file_path):
     with open(file_path, 'r') as f:
@@ -106,9 +108,16 @@ def simpleMC(input_file = "input.yaml"):
     ## Trace les graphiques 
     
     plot_occupation(occupation_arr, n_max, step, T)
-    plot_energy_distribution(occupation_arr, n_max, E_f, step, N, T, L_box)
+    print("HEELLLLOOO")
+    energy, occ = plot_energy_distribution(occupation_arr, n_max, E_f, step, N, T, L_box)
+
+    popt, pcov, mask = fit_fermi_dirac(energy, occ, p0=[1.0, np.median(energy)])
+    beta_fit, mu_fit = popt
+    print("beta_fit =", beta_fit, "mu_fit =", mu_fit)
+
     
     return()
+
 
 def MC_multiT(input_file = "input.yaml"):
     """
@@ -197,6 +206,7 @@ def MC_multiT(input_file = "input.yaml"):
         print(f"simulation T= {T:.0f} K completed.")
         
         # Sauvegarde finale
+        print("Saving occupation data...")
         np.savez_compressed(f"occupations_T={T:.0e}K.npz", *saved_occupations)
         
         #print("Final occupation state:")
