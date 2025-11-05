@@ -108,9 +108,7 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, N, T, L_box):
     
     plt.show()
 
-
-
-def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, T, Tvalues, L):
+def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalues, L):
     """
     Fonction pour tracer la distribution d'énergie des particules dans le système.
     
@@ -147,16 +145,84 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, T, Tvalues,
         # Pour tracer l'énergie de Fermi
         y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
         x_fermi = [Ef, Ef]
-        plt.plot(x_fermi, y_fermi, 'r--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
+        plt.plot(x_fermi, y_fermi, 'r--', label=f'E_F adimensionnée : {Ef:.2f}')
     plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), \
         label='T = {:.0f}K'.format(T))#, markersize=5, "b+",
     if T == np.max(Tvalues):
         #affichage des courbes pour chaque T
         plt.legend()
-        plt.title(f'Distribution d\'énergie des particules à l\'étape {step} pour différentes températures')
+        plt.title(f'Distribution d\'énergie des particules après {step} étapes pour différentes températures (N = {N*2})')
         plt.xlabel('Énergie (adimensionnée)')
         plt.xlim(0, 4*Ef)
         plt.ylabel('Occupation')
         plt.grid()
+        #save figures 
+        output_dir = "fig/multiT"
+        os.makedirs(output_dir, exist_ok=True)
+        Nbre_simus = np.size(Tvalues)
+        Tmin = np.min(Tvalues)
+        Tmax = np.max(Tvalues)
+        filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={N*2}_T={Tmin}_a_{Tmax}K_steps={step:.1e}.png")
+        plt.savefig(filename, dpi=300, bbox_inches="tight")
+    
+        plt.show()
+     
+def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalues, L):
+    """
+    Fonction pour tracer la distribution d'énergie des particules dans le système.
+    
+    Args:
+        occupation_arr (array): Liste des occupations des états quantiques
+        E0 (float): Constante d'énergie
+        n_max (int): Nombre maximum pour les nombres quantiques principaux
+        step (int): Numéro de l'étape actuelle de la simulation
+        T (float): Température du système
+        
+    Outputs:
+        Un graphique affichant la distribution d'énergie des particules
+    """
+    
+    energy_levels = np.zeros(2*(n_max*n_max)+1)
+    degenerescence_levels = np.zeros(2*(n_max*n_max)+1)
+    occupation_levels = np.zeros(2*(n_max*n_max)+1)
+
+    for n1 in range(-n_max, n_max + 1):
+        for n2 in range(-n_max, n_max + 1):
+            energy = int((n1**2 + n2**2))
+            occupation_levels[energy] += occupation_arr[n1 + n_max, n2 + n_max]
+            degenerescence_levels[energy] += 1
+            energy_levels[energy] = energy
+
+    # mask to remove zero degenerescence levels
+    mask = degenerescence_levels > 0
+    energy_levels_masked = energy_levels[mask]
+    occupation_levels_masked = occupation_levels[mask]
+    degenerescence_levels_masked = degenerescence_levels[mask]
+
+    if N == np.min(Nvalues):
+        plt.figure(figsize=(8,6))
+        # Pour tracer l'énergie de Fermi
+        y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
+        x_fermi = [Ef, Ef]
+        plt.plot(x_fermi, y_fermi, 'r--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
+    plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), \
+        label='N = {}'.format(N))#, markersize=5, "b+",
+    if N == np.max(Nvalues):
+        #affichage des courbes pour chaque T
+        plt.legend()
+        plt.title(f'Distribution d\'énergie des particules après {step} étapes pour différents N (T = {T}K)')
+        plt.xlabel('Énergie (adimensionnée)')
+        plt.xlim(0, 4*Ef)
+        plt.ylabel('Occupation')
+        plt.grid()
+        #save figures 
+        output_dir = "fig/multiN"
+        os.makedirs(output_dir, exist_ok=True)
+        Nbre_simus = np.size(Nvalues)
+        Nmin = np.min(Nvalues)
+        Nmax = np.max(Nvalues)
+        filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={Nmin}_a_{Nmax}_T={T}K_steps={step:.1e}.png")
+        plt.savefig(filename, dpi=300, bbox_inches="tight")
+        
         plt.show()
      
