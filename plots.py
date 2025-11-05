@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from CondInit import kbT_adim, mu_adim_fct, Fermi_Dirac_distribution
+from CondInit import kbT_adim, mu_adim_fct, Fermi_Dirac_distribution, L_box_std
 
 
 # On définit la taille des légendes sur les figures 
@@ -122,7 +122,6 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, N, T, L_box):
     plt.show()
     return(Fermi_Dirac_MC, energy_levels_masked)
 
-
 def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalues, L):
     """
     Fonction pour tracer la distribution d'énergie des particules dans le système.
@@ -165,6 +164,37 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
     plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), \
         label='T = {:.0f}K'.format(T))#, markersize=5, "b+",
     
+    #estimation de mu_adim 
+    distrib_FD = occupation_levels_masked/(degenerescence_levels_masked*step)
+    #n_Esup = np.min(np.where(distrib_FD >= 0.5))
+    #n_Einf = np.max(np.where(distrib_FD <= 0.5))
+    #E_sup = energy_levels_masked[n_Esup]
+    #E_inf = energy_levels_masked[n_Einf]
+    #on prend la droite passant par ces deux points, puis son abscisse à l'ordonnée 0.5
+    #mu_adim_estime = E_inf +  (E_sup - E_inf) * (0.5 - n_Einf)/(n_Esup - n_Einf)
+    #print(f"mu_adim(T={T}K) ~= {mu_adim_estime:.4f} (entre E={E_inf} et E={E_sup})")
+
+    # On cherche les indices autour de 1/2
+    target = 0.5
+    diff = distrib_FD - target
+    # indices où la densité passe de >0.5 à <0.5 (ou l’inverse)
+    sign_changes = np.where(np.diff(np.sign(diff)) != 0)[0]
+    if len(sign_changes) == 0:
+        raise ValueError("Aucune valeur proche de 1/2 trouvée — vérifier les données.")
+    # On prend le point juste avant et juste après
+    i_below = sign_changes[0]
+    i_above = i_below + 1
+    
+    E_below = energy_levels_masked[i_below]
+    E_above = energy_levels_masked[i_above]
+    D_below = distrib_FD[i_below]
+    D_above = distrib_FD[i_above]
+    # Interpolation linéaire pour trouver E où Densité = 1/2
+    mu_adim_estime = E_below + (target - D_below) * (E_above - E_below) / (D_above - D_below)
+    #print("Énergie juste en dessous :", E_below)
+    #print("Énergie juste au-dessus :", E_above)
+    print("Estimation du niveau de Fermi (mu) ≈", mu_adim_estime)
+    
     if T == np.max(Tvalues):
         #affichage des courbes pour chaque T
         plt.legend()
@@ -181,8 +211,9 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
         Tmax = np.max(Tvalues)
         filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={N*2}_T={Tmin}_a_{Tmax}K_steps={step:.1e}.png")
         plt.savefig(filename, dpi=300, bbox_inches="tight")
-    
+        
         plt.show()
+    return mu_adim_estime
      
 def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalues, L, color):
     """
@@ -243,3 +274,25 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
         
         plt.show()
      
+def plot_mu_vs_T(T_values, mu_values, L_box, E_f):
+    """
+    Fonction pour tracer le potentiel chimique adimensionné en fonction de la température.
+    
+    Args:
+        T_values (array): Liste des températures
+        mu_values (array): Liste des potentiels chimiques adimensionnés correspondants
+        L_box: vraie taille physique
+        E_f: adimensionnée
+    Outputs:
+        Un graphique affichant mu_adim en fonction de T
+    """
+    
+    plt.figure(figsize=(8,6))
+    plt.plot(T_values, mu_values, 'r+',label="mu estimés par simulation")
+    plt.plot(T_values, mu_adim_fct(L_box,T_values,E_f), label="valeurs théorique")
+    plt.title('Potentiel chimique adimensionné en fonction de T', fontsize=title)
+    plt.xlabel('T (K)', fontsize=label)
+    plt.ylabel('mu_adim', fontsize=label)
+    plt.legend(fontsize=legend)
+    plt.grid()
+    plt.show()

@@ -8,7 +8,8 @@ from MC import gen_cfg, accepte_cfg, modif_occupation_arr
 from parameters import h, hbar, k_b, m_e, conv_J_eV
 from CondInit import CI_lowest_E, create_n_max, Energy_Fermi_adim, wave_vector_Fermi_adim, \
     Energy_unit, wave_vector_unit, lambda_th, L_box_unit, kbT_adim, mu_adim_fct
-from plots import plot_occupation, plot_energy_distribution, plot_energy_distribution_multiT, plot_energy_distribution_multiN
+from plots import plot_occupation, plot_energy_distribution, plot_energy_distribution_multiT, \
+    plot_energy_distribution_multiN, plot_mu_vs_T
 from fit import fit_fermi_dirac
 def load_input(file_path):
     with open(file_path, 'r') as f:
@@ -118,7 +119,6 @@ def simpleMC(input_file = "input.yaml"):
     
     return()
 
-
 def MC_multiT(input_file = "input.yaml"):
     """
     exécute plusieurs simulation MC pour différentes T° spécifiées dans l'input
@@ -135,6 +135,8 @@ def MC_multiT(input_file = "input.yaml"):
     num_steps = config["step"]
     L = config["L"]           # Adimensionée
     N = int(config["N"]) // 2 # On divise par 2 pour avoir le nombre effectif d'e- (sans spin)
+    
+    list_mu_adim = []  # Liste pour stocker les mu_adim estimés pour chaque T
     
     for T in T_values:
         if T == 0:
@@ -216,8 +218,10 @@ def MC_multiT(input_file = "input.yaml"):
         ## Trace les graphiques 
         
         #plot_occupation(occupation_arr, n_max, step, T)
-        plot_energy_distribution_multiT(occupation_arr, n_max, E_f, step, N, T, T_values, L_box)
-    
+        mu_adim_estime = plot_energy_distribution_multiT(occupation_arr, n_max, E_f, step, N, T, T_values, L_box)
+        list_mu_adim.append(mu_adim_estime)
+
+    plot_mu_vs_T(T_values, list_mu_adim, L_box, E_f)
     return()
 
 def MC_multiN(input_file = "input.yaml"):

@@ -43,7 +43,7 @@ def kbT_adim(L,T):
     E_0 = Energy_unit(L)
     return (k_b * T) / E_0
 
-def mu_adim_fct (L,T,E_f):
+def mu_adim_fct(L,T,E_f):
     """Retourne le potentiel chimique adimensionné à la température T (en K)
     inputs: 
         - L : taille physique de la boîte
