@@ -157,6 +157,7 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
         y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
         x_fermi = [Ef, Ef]
         plt.plot(x_fermi, y_fermi, 'r--', label=f'E_F adimensionnée : {Ef:.2f}')
+        
     plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), \
         label='T = {:.0f}K'.format(T))#, markersize=5, "b+",
     
