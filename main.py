@@ -8,8 +8,8 @@ from MC import gen_cfg, accepte_cfg, modif_occupation_arr
 from parameters import h, hbar, k_b, m_e, conv_J_eV
 from CondInit import CI_lowest_E, create_n_max, Energy_Fermi_adim, wave_vector_Fermi_adim, \
     Energy_unit, wave_vector_unit, lambda_th, L_box_unit, kbT_adim, mu_adim_fct
-from plots import plot_occupation, plot_energy_distribution, plot_energy_distribution_multiT
-
+from plots import plot_occupation, plot_energy_distribution, plot_energy_distribution_multiT, plot_energy_distribution_multiN
+from fit import fit_fermi_dirac
 def load_input(file_path):
     with open(file_path, 'r') as f:
         config = yaml.safe_load(f)
