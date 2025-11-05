@@ -51,9 +51,9 @@ def mu_adim_fct(L,T,E_f):
         - E_f : énergie de Fermi adimensionnée
     """
     T_adim = kbT_adim(L,T)
-    print("T_adim in mu_adim_fct:", T_adim)
-    print("E_f in mu_adim_fct:", E_f)
-    print("ln(exp(E_f/T_adim)):", np.log(1-np.exp(-E_f/T_adim)))
+    #print("T_adim in mu_adim_fct:", T_adim)
+    #print("E_f in mu_adim_fct:", E_f)
+    #print("ln(exp(E_f/T_adim)):", np.log(1-np.exp(-E_f/T_adim)))
     mu_adim = E_f + T_adim * np.log(1-np.exp(-E_f/T_adim))
     return (mu_adim)
 

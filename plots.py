@@ -209,7 +209,7 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
         Nbre_simus = np.size(Tvalues)
         Tmin = np.min(Tvalues)
         Tmax = np.max(Tvalues)
-        filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={N*2}_T={Tmin}_a_{Tmax}K_steps={step:.1e}.png")
+        filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={N*2}_T={Tmin:.0f}_a_{Tmax:.0f}K_steps={step:.1e}.png")
         plt.savefig(filename, dpi=300, bbox_inches="tight")
         
         plt.show()
@@ -258,7 +258,7 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
     if N == np.max(Nvalues):
         #affichage des courbes pour chaque T
         plt.legend()
-        plt.title(f'Distribution d\'énergie des particules après {step} étapes pour différents N (T = {T}K)')
+        plt.title(f'Distribution d\'énergie des particules après {step} étapes pour différents N (T = {T:.0f}K)')
         plt.xlabel('Énergie (adimensionnée)')
         plt.xlim(0, 4*Ef)
         plt.ylabel('Occupation', fontsize=label)
@@ -269,7 +269,7 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
         Nbre_simus = np.size(Nvalues)
         Nmin = np.min(Nvalues)
         Nmax = np.max(Nvalues)
-        filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={Nmin}_a_{Nmax}_T={T}K_steps={step:.1e}.png")
+        filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={Nmin}_a_{Nmax}_T={T:.0f}K_steps={step:.1e}.png")
         plt.savefig(filename, dpi=300, bbox_inches="tight")
         
         plt.show()
@@ -288,8 +288,14 @@ def plot_mu_vs_T(T_values, mu_values, L_box, E_f):
     """
     
     plt.figure(figsize=(8,6))
+    #valeurs simulées
     plt.plot(T_values, mu_values, 'r+',label="mu estimés par simulation")
-    plt.plot(T_values, mu_adim_fct(L_box,T_values,E_f), label="valeurs théorique")
+    #valeurs théoriques
+    valT = np.linspace(np.min(T_values),np.max(T_values),1000)
+    print(np.min(valT))
+    plt.plot(valT, mu_adim_fct(L_box,valT,E_f), label="valeurs théoriques")
+    #plot Ef
+    plt.plot()
     plt.title('Potentiel chimique adimensionné en fonction de T', fontsize=title)
     plt.xlabel('T (K)', fontsize=label)
     plt.ylabel('mu_adim', fontsize=label)

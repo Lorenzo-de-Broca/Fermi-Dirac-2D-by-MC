@@ -128,7 +128,9 @@ def MC_multiT(input_file = "input.yaml"):
     Tmin = config["Tmin"]
     Tmax = config["Tmax"]
     deltaT = config["deltaT"]
-    T_values = np.arange(Tmin, Tmax + deltaT, deltaT) 
+    T_values = np.arange(Tmin, Tmax + deltaT, deltaT).astype(float)
+    T_values[T_values==0] = 0.001 # éviter T=0K strict qui pose pb partout
+    
     freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations 
     num_steps = config["step"]
     L = config["L"]           # Adimensionée
@@ -137,8 +139,7 @@ def MC_multiT(input_file = "input.yaml"):
     list_mu_adim = []  # Liste pour stocker les mu_adim estimés pour chaque T
     
     for T in T_values:
-        if T == 0:
-            T = 0.001 # éviter T=0K strict qui pose pb dans lambda_th
+        
         print(f"\nStarting simulation for T = {T:.0f} K")
         # Calcul des grandeurs physiques pour chaque simulation
         L_box = L*L_box_unit(N,100) # Vraie taille de la boite à T=100K (référence)
