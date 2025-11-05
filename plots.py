@@ -10,6 +10,7 @@ title = 20
 label = 18
 legend = 16
 ticks = 14
+markersize = 12
 
 plt.rcParams['xtick.labelsize'] = ticks
 plt.rcParams['ytick.labelsize'] = ticks
@@ -154,18 +155,20 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
     occupation_levels_masked = occupation_levels[mask]
     degenerescence_levels_masked = degenerescence_levels[mask]
 
+    distrib_FD = occupation_levels_masked/(degenerescence_levels_masked*step)
+
     if T == np.min(Tvalues):
         plt.figure(figsize=(8,6))
         # Pour tracer l'énergie de Fermi
-        y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
+        y_fermi = [0,np.max(distrib_FD)*1.1]
         x_fermi = [Ef, Ef]
         plt.plot(x_fermi, y_fermi, 'r--', label=f'E_F adimensionnée : {Ef:.2f}')
         
-    plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), \
+    plt.plot(energy_levels_masked, distrib_FD, \
         label='T = {:.0f}K'.format(T))#, markersize=5, "b+",
     
     #estimation de mu_adim 
-    distrib_FD = occupation_levels_masked/(degenerescence_levels_masked*step)
+    
     #n_Esup = np.min(np.where(distrib_FD >= 0.5))
     #n_Einf = np.max(np.where(distrib_FD <= 0.5))
     #E_sup = energy_levels_masked[n_Esup]
@@ -194,14 +197,14 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
     #print("Énergie juste en dessous :", E_below)
     #print("Énergie juste au-dessus :", E_above)
     print("Estimation du niveau de Fermi (mu) ≈", mu_adim_estime)
-    
+
     if T == np.max(Tvalues):
         #affichage des courbes pour chaque T
         plt.legend()
-        plt.title(f'Distribution d\'énergie des particules après {step} étapes pour différentes températures (N = {N*2})')
-        plt.xlabel('Énergie (adimensionnée)')
+        plt.title(f'Distribution d\'énergie des particules (moyenne sur {step:.1e} steps) pour différentes températures (N = {N*2})', fontsize=title)
+        plt.xlabel('Énergie (adimensionnée)', fontsize=label)
         plt.xlim(0, 4*Ef)
-        plt.ylabel('Occupation')
+        plt.ylabel('Occupation', fontsize=label)
         plt.grid()
         #save figures 
         output_dir = "fig/multiT"
@@ -213,7 +216,7 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
         plt.savefig(filename, dpi=300, bbox_inches="tight")
         
         plt.show()
-    return mu_adim_estime
+    return mu_adim_estime, distrib_FD, energy_levels_masked
      
 def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalues, L, color):
     """
@@ -257,9 +260,9 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
         label='N = {}'.format(N))#, markersize=5, "b+",
     if N == np.max(Nvalues):
         #affichage des courbes pour chaque T
-        plt.legend()
-        plt.title(f'Distribution d\'énergie des particules après {step} étapes pour différents N (T = {T}K)')
-        plt.xlabel('Énergie (adimensionnée)')
+        plt.legend(fontsize=legend)
+        plt.title(f'Distribution d\'énergie des particules (moyenne sur {step:.1e} steps) pour différents N (T = {T:.0f}K)', fontsize=title)
+        plt.xlabel('Énergie (adimensionnée)',fontsize=label)
         plt.xlim(0, 4*Ef)
         plt.ylabel('Occupation', fontsize=label)
         plt.grid()
@@ -274,7 +277,7 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
         
         plt.show()
      
-def plot_mu_vs_T(T_values, mu_values, L_box, E_f):
+def plot_mu_vs_T(T_values, mu_values, mu_values_fit, L_box, E_f):
     """
     Fonction pour tracer le potentiel chimique adimensionné en fonction de la température.
     
@@ -288,8 +291,9 @@ def plot_mu_vs_T(T_values, mu_values, L_box, E_f):
     """
     
     plt.figure(figsize=(8,6))
-    plt.plot(T_values, mu_values, 'r+',label="mu estimés par simulation")
-    plt.plot(T_values, mu_adim_fct(L_box,T_values,E_f), label="valeurs théorique")
+    plt.plot(T_values, mu_values, 'r+', markersize = markersize, label="Mu estimés par simulation (recherche de FD(E) = 1/2)")
+    plt.plot(T_values, mu_values_fit, 'g+', markersize = markersize, label="Mu estimés par simulation (fit de Fermi-Dirac)")
+    plt.plot(T_values, mu_adim_fct(L_box,T_values,E_f), 'b', label="Valeurs théorique")
     plt.title('Potentiel chimique adimensionné en fonction de T', fontsize=title)
     plt.xlabel('T (K)', fontsize=label)
     plt.ylabel('mu_adim', fontsize=label)
