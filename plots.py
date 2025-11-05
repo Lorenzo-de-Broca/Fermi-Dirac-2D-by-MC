@@ -88,11 +88,13 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, N, T, L_box):
     
     mu_adim = mu_adim_fct (L=L_box, T=T, E_f=Ef)
     T_adim = kbT_adim(L_box, T)
-    y_Fermi_Dirac = Fermi_Dirac_distribution(x_Fermi_Dirac, mu_adim,T_adim)
+    y_Fermi_Dirac = Fermi_Dirac_distribution(x_Fermi_Dirac, mu_adim,T_adim) # théorique
 
+    Fermi_Dirac_MC = occupation_levels_masked/(degenerescence_levels_masked*step)
+    
     plt.figure(figsize=(8,6))
     #plt.plot(energy_levels, occupation_levels, "r", markersize=8, label='Occupation des niveaux d\'énergie')
-    plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), "b+", markersize=5, label='Occupation par niveau d\'énergie sans dégénérescence')
+    plt.plot(energy_levels_masked, Fermi_Dirac_MC, "b+", markersize=5, label='Occupation par niveau d\'énergie sans dégénérescence')
     plt.plot(x_E_Fermi, y_E_Fermi, 'r--', label=f'Énergie de Fermi : {Ef:.2f} adimensionnée')
     #plt.plot(x_E_Fermi_kbT, y_E_Fermi, 'g--', label=f'Énergie de Fermi + k_b*T : {Ef + T_adim:.2f} adimensionnée')
 
@@ -118,6 +120,8 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, N, T, L_box):
     plt.grid()
     
     plt.show()
+    return(Fermi_Dirac_MC, energy_levels_masked)
+
 
 def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalues, L):
     """
