@@ -1,9 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
+import os
 from matplotlib.animation import FuncAnimation
 
 from main import load_input
+
+os.makedirs("anim_vid", exist_ok=True)
 
 parser = argparse.ArgumentParser(description="Parser for simulation input file.")
 
@@ -24,11 +27,16 @@ iteration_step = 100          # Intervalle entre les frames en nombre d'itérati
 # Chargement des données
 
 # Récupération du nom du fichier de configuration
-config = load_input("input.yaml")
+config = load_input("input_anim.yaml")
 
+T = config["T"]
+step = config["step"]
+num_steps = config["step"]
+N = int(config["N"]/2)
 freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations
 
-data_file = (f"occupations.npz")
+data_file = (f"animations_file/energy_distribution_N{N*2:.0f}_T{T:.0e}K_step{step:.1e}_freq_save{freq_save:.0f}.npz")
+#data_file = (f"occupations.npz")
 data = np.load(data_file)
 
 matrices = [data[key] for key in data]
@@ -79,7 +87,7 @@ anim = FuncAnimation(
 
 # Sauvegarder l'animation
 print("Sauvegarde de l'animation en cours...")
-anim.save('anim/occupation_animation.mp4', 
+anim.save(f'anim_vid/energy_distribution_N{N*2:.0f}_T{T:.0e}K_step{step:.1e}_freq_save{freq_save:.0f}.mp4', 
           writer='ffmpeg',
           fps=5,  # 5 images par seconde
           dpi=300,  # Bonne résolution

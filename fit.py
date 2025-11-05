@@ -16,7 +16,7 @@ def fermi_dirac_stable(E, beta, mu):
     return expit(-beta * (E - mu))
 
 
-def fit_fermi_dirac_mu(energies, occupancy, kb_T_adim, Ef=None,
+def fit_fermi_dirac_mu(energies, occupancy, kb_T_adim, T, Ef=None,
                        p0=None, bounds=None, sigma=None, plot_result=True):
     """
     Ajuste occupancy(E) = fermi_dirac(E; beta=1/kb_T_adim, mu) en ne faisant varier
@@ -89,7 +89,7 @@ def fit_fermi_dirac_mu(energies, occupancy, kb_T_adim, Ef=None,
         if Ef is not None:
             plt.axvline(Ef, linestyle='--', color='k', label=f"E_F = {Ef:.3g}")
         plt.axvline(mu_fit, linestyle='--', color='g', label=f"μ_fit = {mu_fit:.3g}")
-        plt.title("Fit de la distribution Fermi-Dirac (μ fixé)", fontsize=title)
+        plt.title(f"Fit de la distribution Fermi-Dirac (T = {T:.0f}K)", fontsize=title)
         plt.xlabel('Énergie', fontsize=label)
         plt.ylabel('Occupation', fontsize=label)
         plt.legend(fontsize=12)
