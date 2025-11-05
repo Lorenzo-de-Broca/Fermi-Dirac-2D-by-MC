@@ -1,37 +1,89 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 from matplotlib.animation import FuncAnimation
 
-# Chargement
-data = np.load("occupations.npz")
-matrices = [data[key] for key in data]
+from main import load_input
 
+parser = argparse.ArgumentParser(description="Parser for simulation input file.")
+
+# Définition des arguments du parser
+parser.add_argument("--file", type=str, required=False, default="input.yaml", \
+        help="Nom ou chemin du fichier de configuration YAML")
+    
+# Lecture des arguments
+args = parser.parse_args()
+input_file = args.file
+
+# Paramètres de style
+FONTSIZE_TITLE = 20
+FONTSIZE_LABEL = 18
+FONTSIZE_TICKS = 14
+iteration_step = 100          # Intervalle entre les frames en nombre d'itérations réelles
+
+# Chargement des données
+
+# Récupération du nom du fichier de configuration
+config = load_input("input.yaml")
+
+freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations
+
+data_file = (f"occupations.npz")
+data = np.load(data_file)
+
+matrices = [data[key] for key in data]
 n_max = (matrices[0].shape[0] - 1) // 2
 
-# Préparation des coordonnées
-n1, n2 = np.indices(matrices[0].shape)
-n1 = n1.flatten() - n_max
-n2 = n2.flatten() - n_max
+# Création de la grille de points
+n1, n2 = np.mgrid[-n_max:n_max+1, -n_max:n_max+1]
 
-# Préparation de la figure
-fig, ax = plt.subplots(figsize=(6,6))
-sc = ax.scatter([], [], c=[], cmap='viridis', s=40, marker='s')
+# Configuration de la figure
+fig, ax = plt.subplots(figsize=(8, 8))
+
+# Premier scatter plot avec la première matrice
+scatter = ax.scatter(n1, n2, c=matrices[0], cmap='viridis', 
+                    s=60, marker='s')
+
+# Configuration des axes et labels
 ax.set_xlim(-n_max, n_max)
 ax.set_ylim(-n_max, n_max)
-ax.set_xlabel("n1")
-ax.set_ylabel("n2")
-ax.set_title("Occupation des états quantiques (animation)")
-cb = plt.colorbar(sc, ax=ax, label="Occupation / step")
+ax.set_xlabel("n1", fontsize=FONTSIZE_LABEL)
+ax.set_ylabel("n2", fontsize=FONTSIZE_LABEL)
+ax.tick_params(labelsize=FONTSIZE_TICKS)
 
-# Fonction d'update
+# Titre initial
+ax.set_title("Occupation des états quantiques (étape 0)", 
+             fontsize=FONTSIZE_TITLE, pad=10)
+
+# Colorbar
+cbar = plt.colorbar(scatter)
+cbar.set_label("Occupation / step", fontsize=FONTSIZE_LABEL)
+cbar.ax.tick_params(labelsize=FONTSIZE_TICKS)
+
 def update(frame):
-    occ = matrices[frame]
-    sc.set_offsets(np.c_[n1, n2])
-    sc.set_array(occ.flatten())
-    ax.set_title(f"Étape {frame * 100}")  # suppose sauvegarde toutes les 100 itérations
-    return (sc,)
+    """Mise à jour de l'animation"""
+    # Mise à jour des couleurs
+    scatter.set_array(matrices[frame].flatten())
+    # Mise à jour du titre
+    ax.set_title(f"Occupation des états quantiques (étape {frame*freq_save})",
+                 fontsize=FONTSIZE_TITLE, pad=10)
 
-# Création de l’animation
-ani = FuncAnimation(fig, update, frames=len(matrices), interval=200, blit=True)
+# Création de l'animation
+anim = FuncAnimation(
+    fig, 
+    update,
+    frames=len(matrices),
+    interval=200,  # 200ms entre chaque frame
+    repeat=False   # Pas de boucle pour la sauvegarde
+)
 
+# Sauvegarder l'animation
+print("Sauvegarde de l'animation en cours...")
+anim.save('anim/occupation_animation.mp4', 
+          writer='ffmpeg',
+          fps=5,  # 5 images par seconde
+          dpi=300,  # Bonne résolution
+          bitrate=2000)  # Bonne qualité vidéo
+
+print("Animation sauvegardée dans le dossier 'anim'")
 plt.show()
