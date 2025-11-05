@@ -33,7 +33,7 @@ def simpleMC(input_file = "input.yaml"):
     freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations
     
     # Calcul des grandeurs physiques de la simulation
-    L_box = L*L_box_unit(N,100) # Vraie taille de la boite à T=100K (référence)
+    L_box = L*L_box_unit() # Vraie taille de la boite à T=100K (référence)
     E0 = Energy_unit(L_box)
     k0 = wave_vector_unit(L_box)
     #  Calcul des grandeurs adimensionnées de la simulation
@@ -147,7 +147,7 @@ def MC_multiT(input_file = "input.yaml"):
         i_color += 1
         print(f"\nStarting simulation for T = {T:.0f} K")
         # Calcul des grandeurs physiques pour chaque simulation
-        L_box = L*L_box_unit(N,100) # Vraie taille de la boite à T=100K (référence)
+        L_box = L*L_box_unit() # Vraie taille de la boite à T=100K (référence)
         E0 = Energy_unit(L_box)
         k0 = wave_vector_unit(L_box)
         #  Calcul des grandeurs adimensionnées de la simulation
@@ -213,7 +213,7 @@ def MC_multiT(input_file = "input.yaml"):
         print(f"simulation T= {T:.0f} K completed.")
         
         # Sauvegarde finale
-        os.makedirs("animations", exist_ok=True)
+        os.makedirs("animations_file", exist_ok=True)
         np.savez_compressed(f"animations_file/energy_distribution_N{N*2:.0f}_T{T:.0e}K_step{step:.1e}_freq_save{freq_save:.0f}.npz", *saved_occupations)
         
         #print("Final occupation state:")
@@ -229,7 +229,7 @@ def MC_multiT(input_file = "input.yaml"):
         popt, pcov, mask = fit_fermi_dirac_mu(energy, occ, T_adim, T, E_f, plot_result=False)
         mu_fit = float(popt[0])
         list_mu_adim_fit.append(mu_fit)
-        print(list_mu_adim_fit)
+
         
     plot_mu_vs_T(T_values, list_mu_adim, list_mu_adim_fit, L_box, E_f)
 
@@ -266,7 +266,9 @@ def MC_multiN(input_file = "input.yaml"):
             print(f"\n N = 0, skipping this simulation.")
             continue
         # Calcul des grandeurs physiques pour chaque simulation
-        L_box = L*L_box_unit(N,100) # Vraie taille de la boite à T=100K (référence)
+        print(f"N = {N}")
+        Nbox=50 # pour avoir une taille de boite raisonnable constante pour tous les N
+        L_box = L*L_box_unit() # Vraie taille de la boite à T=100K (référence)
         E0 = Energy_unit(L_box)
         k0 = wave_vector_unit(L_box)
         #  Calcul des grandeurs adimensionnées de la simulation
@@ -331,6 +333,7 @@ def MC_multiN(input_file = "input.yaml"):
         print(f"simulation N = {N:.0f} completed.")
         
         # Sauvegarde finale
+        os.makedirs("animations_file", exist_ok=True)
         np.savez_compressed(f"animations_file/energy_distribution_N{N*2:.0f}_T{T:.0e}K_step{step:.1e}_freq_save{freq_save:.0f}.npz", *saved_occupations)
         
         #print("Final occupation state:")
@@ -346,7 +349,6 @@ def MC_multiN(input_file = "input.yaml"):
         popt, pcov, mask = fit_fermi_dirac_mu(energy, occ, T_adim, E_f, plot_result=False)
         mu_fit = float(popt[0])
         list_mu_adim_fit.append(mu_fit)
-        print(list_mu_adim_fit)
         
     plot_mu_vs_N(N_values, list_mu_adim, list_mu_adim_fit, L_box, T)
 

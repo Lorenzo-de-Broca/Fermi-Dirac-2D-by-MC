@@ -64,9 +64,9 @@ ax.set_title("Occupation des états quantiques (étape 0)",
              fontsize=FONTSIZE_TITLE, pad=10)
 
 # Colorbar
-cbar = plt.colorbar(scatter)
-cbar.set_label("Occupation / step", fontsize=FONTSIZE_LABEL)
-cbar.ax.tick_params(labelsize=FONTSIZE_TICKS)
+#cbar = plt.colorbar(scatter)
+#cbar.set_label("Occupation / step", fontsize=FONTSIZE_LABEL)
+#cbar.ax.tick_params(labelsize=FONTSIZE_TICKS)
 
 def update(frame):
     """Mise à jour de l'animation"""

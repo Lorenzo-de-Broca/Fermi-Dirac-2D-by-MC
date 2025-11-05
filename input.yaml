@@ -6,10 +6,10 @@ freq_save: 100
 N: 100
 T: 10
 # for multiT simulations
-Tmin: 60
+Tmin: 0
 Tmax: 100
 deltaT: 20
 # for multiN simulations
-Nmin: 40
-Nmax: 60
-deltaN: 10
+Nmin: 25
+Nmax: 200
+deltaN: 25
