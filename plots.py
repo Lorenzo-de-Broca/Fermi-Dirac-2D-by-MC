@@ -200,7 +200,7 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
 
     if T == np.max(Tvalues):
         #affichage des courbes pour chaque T
-        plt.legend()
+        plt.legend(fontsize=legend)
         plt.title(f'Distribution d\'énergie des particules (moyenne sur {step:.1e} steps) pour différentes températures (N = {N*2})', fontsize=title)
         plt.xlabel('Énergie (adimensionnée)', fontsize=label)
         plt.xlim(0, 4*Ef)
@@ -276,6 +276,8 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
         plt.savefig(filename, dpi=300, bbox_inches="tight")
         
         plt.show()
+        
+    
      
 def plot_mu_vs_T(T_values, mu_values, mu_values_fit, L_box, E_f):
     """

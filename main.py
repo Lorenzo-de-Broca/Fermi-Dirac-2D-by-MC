@@ -100,8 +100,8 @@ def simpleMC(input_file = "input.yaml"):
     print("Monte Carlo simulation completed.")
     
     # Sauvegarde finale
-    os.makedirs("animations/simpleMC", exist_ok=True)
-    np.savez_compressed("animations/simpleMC/occupations.npz", *saved_occuaptions)
+    os.makedirs("animations", exist_ok=True)
+    np.savez_compressed(f"animations_file/energy_distribution_N{N*2:.0f}_T{T:.0e}K_step{step:.1e}_freq_save{freq_save:.0f}.npz", *saved_occuaptions)
     
     print("Final occupation state:")
     print(occupation_step)  
@@ -113,10 +113,8 @@ def simpleMC(input_file = "input.yaml"):
     plot_occupation(occupation_arr, n_max, step, T)
     occ, energy = plot_energy_distribution(occupation_arr, n_max, E_f, step, N, T, L_box)
 
-    popt, pcov, mask = fit_fermi_dirac_mu(energy, occ, T_adim, E_f)
+    popt, pcov, mask = fit_fermi_dirac_mu(energy, occ, T_adim, T, E_f)
     mu_fit = popt
-    print(f"mu_fit = {mu_fit:.2e}")
-
     return()
 
 def MC_multiT(input_file = "input.yaml"):
@@ -210,8 +208,8 @@ def MC_multiT(input_file = "input.yaml"):
         print(f"simulation T= {T:.0f} K completed.")
         
         # Sauvegarde finale
-        os.makedirs("animations/multiT", exist_ok=True)
-        np.savez_compressed(f"animations/multiT/occupations_T={T}K.npz", *saved_occupations)
+        os.makedirs("animations", exist_ok=True)
+        np.savez_compressed(f"animations_file/energy_distribution_N{N*2:.0f}_T{T:.0e}K_step{step:.1e}_freq_save{freq_save:.0f}.npz", *saved_occupations)
         
         #print("Final occupation state:")
         #print(occupation_step)  
@@ -223,7 +221,7 @@ def MC_multiT(input_file = "input.yaml"):
         mu_adim_estime, occ, energy = plot_energy_distribution_multiT(occupation_arr, n_max, E_f, step, N, T, T_values, L_box)
         list_mu_adim.append(mu_adim_estime)
 
-        popt, pcov, mask = fit_fermi_dirac_mu(energy, occ, T_adim, E_f, plot_result=False)
+        popt, pcov, mask = fit_fermi_dirac_mu(energy, occ, T_adim, T, E_f, plot_result=False)
         mu_fit = float(popt[0])
         list_mu_adim_fit.append(mu_fit)
         print(list_mu_adim_fit)
@@ -247,6 +245,7 @@ def MC_multiN(input_file = "input.yaml"):
     deltaN = config["deltaN"]
     N_values = np.arange(Nmin, Nmax + deltaN, deltaN) // 2 # On divise par 2 pour avoir le nombre effectif d'e- (sans spin)
     num_steps = config["step"]
+    freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations
     L = config["L"]    # Adimensionée
     
     #definition of plot colors (needed to plot Ef and corresponding distribution w/ same color)
@@ -324,8 +323,7 @@ def MC_multiN(input_file = "input.yaml"):
         print(f"simulation N = {N:.0f} completed.")
         
         # Sauvegarde finale
-        os.makedirs("animations/multiN", exist_ok=True)
-        np.savez_compressed(f"animations/multiN/occupations_N={N}K.npz", *saved_occupations)
+        np.savez_compressed(f"animations_file/energy_distribution_N{N*2:.0f}_T{T:.0e}K_step{step:.1e}_freq_save{freq_save:.0f}.npz", *saved_occupations)
         
         #print("Final occupation state:")
         #print(occupation_step)  
@@ -341,7 +339,7 @@ def MC_multiN(input_file = "input.yaml"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parser for simulation input file.")
-    os.makedirs("animations", exist_ok=True)
+    os.makedirs("animations_file", exist_ok=True)
     # Définition des arguments du parser
     parser.add_argument("--file", type=str, required=False, default="input.yaml", \
         help="Nom ou chemin du fichier de configuration YAML")
