@@ -1,8 +1,13 @@
-T: 10
 step: 5000
 L: 1
-N: 100
 freq_save: 100
+N: 100
+T: 10
+# for multiT simulations
 Tmin: 0
 Tmax: 200
-Ntemp: 11
+deltaT: 20
+# for multiN simulations
+Nmin: 50
+Nmax: 200
+deltaN: 50

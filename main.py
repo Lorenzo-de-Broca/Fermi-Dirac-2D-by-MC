@@ -2,14 +2,13 @@ import numpy as np
 import yaml
 import matplotlib.pyplot as plt
 import argparse
+import os
 
 from MC import gen_cfg, accepte_cfg, modif_occupation_arr
 from parameters import h, hbar, k_b, m_e, conv_J_eV
 from CondInit import CI_lowest_E, create_n_max, Energy_Fermi_adim, wave_vector_Fermi_adim, \
     Energy_unit, wave_vector_unit, lambda_th, L_box_unit, kbT_adim, mu_adim_fct
 from plots import plot_occupation, plot_energy_distribution, plot_energy_distribution_multiT
-from fit import fit_fermi_dirac
-
 
 def load_input(file_path):
     with open(file_path, 'r') as f:
@@ -98,7 +97,8 @@ def simpleMC(input_file = "input.yaml"):
     print("Monte Carlo simulation completed.")
     
     # Sauvegarde finale
-    np.savez_compressed("occupations.npz", *saved_occuaptions)
+    os.makedirs("animations/simpleMC", exist_ok=True)
+    np.savez_compressed("animations/simpleMC/occupations.npz", *saved_occuaptions)
     
     print("Final occupation state:")
     print(occupation_step)  
@@ -121,7 +121,7 @@ def simpleMC(input_file = "input.yaml"):
 
 def MC_multiT(input_file = "input.yaml"):
     """
-    excécute plusieurs simulation MC pour différentes T° spécifiées dans l'input
+    exécute plusieurs simulation MC pour différentes T° spécifiées dans l'input
     """
     # Lecture des paramètres depuis le fichier YAML
     print(f"Loading configuration from file : {input_file}")
@@ -129,9 +129,9 @@ def MC_multiT(input_file = "input.yaml"):
 
     Tmin = config["Tmin"]
     Tmax = config["Tmax"]
-    Ntemp = config["Ntemp"]
-    freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations
-    T_values = np.linspace(Tmin, Tmax, Ntemp)    
+    deltaT = config["deltaT"]
+    T_values = np.arange(Tmin, Tmax + deltaT, deltaT) 
+    freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations 
     num_steps = config["step"]
     L = config["L"]           # Adimensionée
     N = int(config["N"]) // 2 # On divise par 2 pour avoir le nombre effectif d'e- (sans spin)
@@ -164,7 +164,7 @@ def MC_multiT(input_file = "input.yaml"):
         
         # Initialisation des listes et variables 
         occupation_arr = np.zeros((2 * n_max + 1 , 2 * n_max + 1))
-        saved_occupations = []                                           # Liste où on stocke les occupations à chaque étape
+        saved_occupations = []    # Liste où on stocke les occupations à chaque étape
         step = 0
         
         # Génération de la configuration initiale
@@ -206,7 +206,6 @@ def MC_multiT(input_file = "input.yaml"):
         print(f"simulation T= {T:.0f} K completed.")
         
         # Sauvegarde finale
-        print("Saving occupation data...")
         np.savez_compressed(f"occupations_T={T:.0e}K.npz", *saved_occupations)
         
         #print("Final occupation state:")
@@ -216,26 +215,33 @@ def MC_multiT(input_file = "input.yaml"):
         ## Trace les graphiques 
         
         #plot_occupation(occupation_arr, n_max, step, T)
-        plot_energy_distribution_multiT(occupation_arr, n_max, E_f, step, T, T_values, L_box)
+        plot_energy_distribution_multiN(occupation_arr, n_max, E_f, step, T, N, N_values, L_box)
     
     return()
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parser for simulation input file.")
-
+    os.makedirs("animations", exist_ok=True)
     # Définition des arguments du parser
     parser.add_argument("--file", type=str, required=False, default="input.yaml", \
         help="Nom ou chemin du fichier de configuration YAML")
     
-    parser.add_argument("--simu", type=str, required=False, default="simple", \
-        help="est-ce qu'on lance une seule simulation, ou bien plusieurs pour différents T, N, L ?")
+    parser.add_argument("--simu", type=str, required=True, default="simple", \
+        help="Une seule simu ? ou bien plusieurs T, N, V en parallèle ? (options: simple / multiT / multiN / multiV )")
     
     # Lecture des arguments
     args = parser.parse_args()
     input_file = args.file
     simu_type = args.simu
     
-    if simu_type == "simple":
+    if simu_type.lower() == "simple":
         simpleMC(input_file)
-    elif simu_type == "multiT":
+    elif simu_type.lower() == "multit":
         MC_multiT(input_file)
+    elif simu_type.lower() == "multin":
+        MC_multiN(input_file)
+    elif simu_type.lower() == "multiv":
+        print("Option multiV pas encore implémentée.")
+    else:
+        print("Choisir le paramètre simu parmi: simple / multiT / multiN / multiV.")
