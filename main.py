@@ -9,7 +9,8 @@ from parameters import h, hbar, k_b, m_e, conv_J_eV
 from CondInit import CI_lowest_E, create_n_max, Energy_Fermi_adim, wave_vector_Fermi_adim, \
     Energy_unit, wave_vector_unit, lambda_th, L_box_unit, kbT_adim, mu_adim_fct
 from plots import plot_occupation, plot_energy_distribution, plot_energy_distribution_multiT, plot_energy_distribution_multiN
-from fit import fit_fermi_dirac
+from fit import fit_fermi_dirac_mu
+
 def load_input(file_path):
     with open(file_path, 'r') as f:
         config = yaml.safe_load(f)
@@ -108,14 +109,12 @@ def simpleMC(input_file = "input.yaml"):
     ## Trace les graphiques 
     
     plot_occupation(occupation_arr, n_max, step, T)
-    print("HEELLLLOOO")
-    energy, occ = plot_energy_distribution(occupation_arr, n_max, E_f, step, N, T, L_box)
+    occ, energy = plot_energy_distribution(occupation_arr, n_max, E_f, step, N, T, L_box)
 
-    popt, pcov, mask = fit_fermi_dirac(energy, occ, p0=[1.0, np.median(energy)])
-    beta_fit, mu_fit = popt
-    print("beta_fit =", beta_fit, "mu_fit =", mu_fit)
+    popt, pcov, mask = fit_fermi_dirac_mu(energy, occ, T_adim, E_f)
+    mu_fit = popt
+    print(f"mu_fit = {mu_fit:.2e}")
 
-    
     return()
 
 
