@@ -9,7 +9,7 @@ from parameters import h, hbar, k_b, m_e, conv_J_eV
 from CondInit import CI_lowest_E, create_n_max, Energy_Fermi_adim, wave_vector_Fermi_adim, \
     Energy_unit, wave_vector_unit, lambda_th, L_box_unit, kbT_adim, mu_adim_fct
 from plots import plot_occupation, plot_energy_distribution, plot_energy_distribution_multiT, \
-    plot_energy_distribution_multiN, plot_mu_vs_T
+    plot_energy_distribution_multiN, plot_mu_vs_T, plot_mu_vs_N
 from fit import fit_fermi_dirac_mu
 
 
@@ -141,7 +141,12 @@ def MC_multiT(input_file = "input.yaml"):
     list_mu_adim = []  # Liste pour stocker les mu_adim estimés pour chaque T
     list_mu_adim_fit = []
     
+    #definition of plot colors (needed to plot Ef and corresponding distribution w/ same color)
+    color_array = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+    i_color = 0
     for T in T_values:
+        color = color_array[i_color % len(color_array)]
+        i_color += 1
         print(f"\nStarting simulation for T = {T:.0f} K")
         # Calcul des grandeurs physiques pour chaque simulation
         L_box = L*L_box_unit(N,100) # Vraie taille de la boite à T=100K (référence)
@@ -220,7 +225,7 @@ def MC_multiT(input_file = "input.yaml"):
         ## Trace les graphiques 
         
         #plot_occupation(occupation_arr, n_max, step, T)
-        mu_adim_estime, occ, energy = plot_energy_distribution_multiT(occupation_arr, n_max, E_f, step, N, T, T_values, L_box)
+        mu_adim_estime, occ, energy = plot_energy_distribution_multiT(occupation_arr, n_max, E_f, step, N, T, T_values, L_box, color)
         list_mu_adim.append(mu_adim_estime)
 
         popt, pcov, mask = fit_fermi_dirac_mu(energy, occ, T_adim, E_f, plot_result=False)
@@ -248,6 +253,9 @@ def MC_multiN(input_file = "input.yaml"):
     N_values = np.arange(Nmin, Nmax + deltaN, deltaN) // 2 # On divise par 2 pour avoir le nombre effectif d'e- (sans spin)
     num_steps = config["step"]
     L = config["L"]    # Adimensionée
+    
+    list_mu_adim = []  # Liste pour stocker les mu_adim estimés pour chaque T
+    list_mu_adim_fit = []
     
     #definition of plot colors (needed to plot Ef and corresponding distribution w/ same color)
     color_array = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
@@ -334,8 +342,16 @@ def MC_multiN(input_file = "input.yaml"):
         ## Trace les graphiques 
         
         #plot_occupation(occupation_arr, n_max, step, T)
-        plot_energy_distribution_multiN(occupation_arr, n_max, E_f, step, T, N, N_values, L_box, color)
-    
+        mu_adim_estime, occ, energy = plot_energy_distribution_multiN(occupation_arr, n_max, E_f, step, T, N, N_values, L_box, color)
+        list_mu_adim.append(mu_adim_estime)
+
+        popt, pcov, mask = fit_fermi_dirac_mu(energy, occ, T_adim, E_f, plot_result=False)
+        mu_fit = float(popt[0])
+        list_mu_adim_fit.append(mu_fit)
+        print(list_mu_adim_fit)
+        
+    plot_mu_vs_N(N_values, list_mu_adim, list_mu_adim_fit, L_box, T)
+
     return()
 
 

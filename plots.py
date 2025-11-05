@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from CondInit import kbT_adim, mu_adim_fct, Fermi_Dirac_distribution, L_box_std
+from CondInit import kbT_adim, mu_adim_fct, Fermi_Dirac_distribution, Energy_Fermi_adim
 
 
 # On définit la taille des légendes sur les figures 
@@ -123,7 +123,7 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, N, T, L_box):
     plt.show()
     return(Fermi_Dirac_MC, energy_levels_masked)
 
-def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalues, L):
+def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalues, L, color):
     """
     Fonction pour tracer la distribution d'énergie des particules dans le système.
     
@@ -164,18 +164,8 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
         x_fermi = [Ef, Ef]
         plt.plot(x_fermi, y_fermi, 'r--', label=f'E_F adimensionnée : {Ef:.2f}')
         
-    plt.plot(energy_levels_masked, distrib_FD, \
+    plt.plot(energy_levels_masked, distrib_FD, color,\
         label='T = {:.0f}K'.format(T))#, markersize=5, "b+",
-    
-    #estimation de mu_adim 
-    
-    #n_Esup = np.min(np.where(distrib_FD >= 0.5))
-    #n_Einf = np.max(np.where(distrib_FD <= 0.5))
-    #E_sup = energy_levels_masked[n_Esup]
-    #E_inf = energy_levels_masked[n_Einf]
-    #on prend la droite passant par ces deux points, puis son abscisse à l'ordonnée 0.5
-    #mu_adim_estime = E_inf +  (E_sup - E_inf) * (0.5 - n_Einf)/(n_Esup - n_Einf)
-    #print(f"mu_adim(T={T}K) ~= {mu_adim_estime:.4f} (entre E={E_inf} et E={E_sup})")
 
     # On cherche les indices autour de 1/2
     target = 0.5
@@ -201,7 +191,7 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
     if T == np.max(Tvalues):
         #affichage des courbes pour chaque T
         plt.legend()
-        plt.title(f'Distribution d\'énergie des particules (moyenne sur {step:.1e} steps) pour différentes températures (N = {N*2})', fontsize=title)
+        plt.title(f'Distribution d\'énergie des particules (moyenne sur {step:.0e} pas) pour différents T (N = {N*2})', fontsize=title)
         plt.xlabel('Énergie (adimensionnée)', fontsize=label)
         plt.xlim(0, 4*Ef)
         plt.ylabel('Occupation', fontsize=label)
@@ -250,14 +240,38 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
     occupation_levels_masked = occupation_levels[mask]
     degenerescence_levels_masked = degenerescence_levels[mask]
 
+    distrib_FD = occupation_levels_masked/(degenerescence_levels_masked*step)
+
     if N == np.min(Nvalues):
         plt.figure(figsize=(8,6))
     # Pour tracer l'énergie de Fermi
-    y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
+    y_fermi = [0,np.max(distrib_FD)*1.1]
     x_fermi = [Ef, Ef]
     plt.plot(x_fermi, y_fermi, color+'--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
-    plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), color, \
-        label='N = {}'.format(N))#, markersize=5, "b+",
+    plt.plot(energy_levels_masked, distrib_FD, color, \
+        label='N = {}'.format(N*2))#, markersize=5, "b+",
+    
+    # On cherche les indices autour de 1/2
+    target = 0.5
+    diff = distrib_FD - target
+    # indices où la densité passe de >0.5 à <0.5 (ou l’inverse)
+    sign_changes = np.where(np.diff(np.sign(diff)) != 0)[0]
+    if len(sign_changes) == 0:
+        raise ValueError("Aucune valeur proche de 1/2 trouvée — vérifier les données.")
+    # On prend le point juste avant et juste après
+    i_below = sign_changes[0]
+    i_above = i_below + 1
+    
+    E_below = energy_levels_masked[i_below]
+    E_above = energy_levels_masked[i_above]
+    D_below = distrib_FD[i_below]
+    D_above = distrib_FD[i_above]
+    # Interpolation linéaire pour trouver E où Densité = 1/2
+    mu_adim_estime = E_below + (target - D_below) * (E_above - E_below) / (D_above - D_below)
+    #print("Énergie juste en dessous :", E_below)
+    #print("Énergie juste au-dessus :", E_above)
+    print("Estimation du niveau de Fermi (mu) ≈", mu_adim_estime)
+    
     if N == np.max(Nvalues):
         #affichage des courbes pour chaque T
         plt.legend(fontsize=legend)
@@ -272,10 +286,11 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
         Nbre_simus = np.size(Nvalues)
         Nmin = np.min(Nvalues)
         Nmax = np.max(Nvalues)
-        filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={Nmin}_a_{Nmax}_T={T:.0f}K_steps={step:.1e}.png")
+        filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={Nmin*2}_a_{Nmax*2}_T={T:.0f}K_steps={step:.1e}.png")
         plt.savefig(filename, dpi=300, bbox_inches="tight")
         
         plt.show()
+    return mu_adim_estime, distrib_FD, energy_levels_masked
      
 def plot_mu_vs_T(T_values, mu_values, mu_values_fit, L_box, E_f):
     """
@@ -296,8 +311,36 @@ def plot_mu_vs_T(T_values, mu_values, mu_values_fit, L_box, E_f):
     plt.plot(valT, mu_adim_fct(L_box,valT,E_f), label="valeurs théoriques")
     plt.plot(T_values, mu_values, 'r+', markersize = markersize, label="Mu estimés par simulation (recherche de FD(E) = 1/2)")
     plt.plot(T_values, mu_values_fit, 'g+', markersize = markersize, label="Mu estimés par simulation (fit de Fermi-Dirac)")
-    plt.title('Potentiel chimique adimensionné en fonction de T', fontsize=title)
+    N = 2*np.pi*E_f
+    plt.title('Potentiel chimique adimensionné en fonction de T (N = {N})', fontsize=title)
     plt.xlabel('T (K)', fontsize=label)
+    plt.ylabel('mu_adim', fontsize=label)
+    plt.legend(fontsize=legend)
+    plt.grid()
+    plt.show()
+    
+
+def plot_mu_vs_N(N_values, mu_values, mu_values_fit, L_box, T):
+    """
+    Fonction pour tracer le potentiel chimique adimensionné en fonction de la température.
+    
+    Args:
+        N_values (array): Liste des N
+        mu_values (array): Liste des potentiels chimiques adimensionnés correspondants
+        L_box: vraie taille physique
+        E_f: adimensionnée
+    Outputs:
+        Un graphique affichant mu_adim en fonction de T
+    """
+    
+    plt.figure(figsize=(8,6))
+
+    valN = np.linspace(np.min(N_values),np.max(N_values),1000) #N sont tjrs divisés par 2 pr le spin
+    plt.plot(valN, mu_adim_fct(L_box,T,Energy_Fermi_adim(valN*2)), label="valeurs théoriques")
+    plt.plot(N_values*2, mu_values, 'r+', markersize = markersize, label="Mu estimés par simulation (recherche de FD(E) = 1/2)")
+    plt.plot(N_values*2, mu_values_fit, 'g+', markersize = markersize, label="Mu estimés par simulation (fit de Fermi-Dirac)")
+    plt.title('Potentiel chimique adimensionné en fonction de N (T = {T}K)', fontsize=title)
+    plt.xlabel('N', fontsize=label)
     plt.ylabel('mu_adim', fontsize=label)
     plt.legend(fontsize=legend)
     plt.grid()
