@@ -4,6 +4,17 @@ import os
 
 from CondInit import kbT_adim, mu_adim_fct, Fermi_Dirac_distribution
 
+
+# On définit la taille des légendes sur les figures 
+title = 20
+label = 18
+legend = 16
+ticks = 14
+
+plt.rcParams['xtick.labelsize'] = ticks
+plt.rcParams['ytick.labelsize'] = ticks
+
+
 def plot_occupation(occupation_arr, n_max, step, T):
     """
     Version discrète avec points distincts (scatter plot).
@@ -23,9 +34,9 @@ def plot_occupation(occupation_arr, n_max, step, T):
     )
 
     plt.colorbar(label='Occupation')
-    plt.title(f"Occupation discrète des états quantiques à l'étape {step:.1e} (T={T} K)")
-    plt.xlabel('n1')
-    plt.ylabel('n2')
+    plt.title(f"Occupation discrète des états quantiques (moyenne sur {step:.1e} steps) (T={T} K)", fontsize=title)
+    plt.xlabel('n1', fontsize=label)
+    plt.ylabel('n2', fontsize=label)
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.show()
     
@@ -86,10 +97,10 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, N, T, L_box):
     #plt.plot(x_E_Fermi_kbT, y_E_Fermi, 'g--', label=f'Énergie de Fermi + k_b*T : {Ef + T_adim:.2f} adimensionnée')
 
     plt.plot(x_Fermi_Dirac, y_Fermi_Dirac, 'k-', label='Distribution de Fermi-Dirac théorique')
-    plt.legend()
-    plt.title(f'Distribution d\'énergie des particules à l\'étape {step:.1e}, pour N={N*2:.0f} e- et T={T}K')
-    plt.xlabel('Énergie (adimensionnée)')
-    plt.ylabel('Occupation')
+    plt.legend(fontsize=legend)
+    plt.title(f'Distribution d\'énergie des particules (moyenne sur {step:.1e} steps), pour N={N*2:.0f} e- et T={T}K', fontsize=title)
+    plt.xlabel('Énergie (adimensionnée)', fontsize=label)
+    plt.ylabel('Occupation', fontsize=label)
     plt.grid()
     
     # Sauvegarde
@@ -100,10 +111,10 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, N, T, L_box):
       
     # Graphique de la dégénérescence des niveaux d'énergie
     plt.plot(energy_levels_masked, degenerescence_levels_masked, "g+", markersize=8, label='Dégénérescence des niveaux d\'énergie')
-    plt.legend()
-    plt.title(f'Dégénérescence des niveaux d\'énergie à l\'étape {step:.1e} et T={T}K')
-    plt.xlabel('Énergie (adimensionnée)')
-    plt.ylabel('Dégénérescence')
+    plt.legend(fontsize=legend)
+    plt.title(f'Dégénérescence des niveaux d\'énergie, T={T}K', fontsize=title)
+    plt.xlabel('Énergie (adimensionnée)', fontsize=label)
+    plt.ylabel('Dégénérescence', fontsize=label)
     plt.grid()
     
     plt.show()
@@ -150,17 +161,18 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, T, Tvalues,
         plt.plot(x_fermi, y_fermi, 'r--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
     plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), \
         label='T = {:.0f}K'.format(T))#, markersize=5, "b+",
+    
     if T == np.max(Tvalues):
         # Pour tracer l'énergie de Fermi
         y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
         x_fermi = [Ef, Ef]
         plt.plot(x_fermi, y_fermi, 'r--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
         #affichage des courbes pour chaque T
-        plt.legend()
-        plt.title(f'Distribution d\'énergie des particules à l\'étape {step} pour différentes températures')
-        plt.xlabel('Énergie (adimensionnée)')
+        plt.legend(fontsize=legend)
+        plt.title(f'Distribution d\'énergie des particules (moyenne sur {step:.1e} steps) pour différentes températures', fontsize=title)
+        plt.xlabel('Énergie (adimensionnée)', fontsize=label)
         plt.xlim(0, 4*Ef)
-        plt.ylabel('Occupation')
+        plt.ylabel('Occupation', fontsize=label)
         plt.grid()
         plt.show()
      

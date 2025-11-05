@@ -26,6 +26,7 @@ def simpleMC(input_file = "input.yaml"):
     num_steps = config["step"]
     L = config["L"]           # Adimensionée
     N = int(config["N"]) // 2 # On divise par 2 pour avoir le nombre effectif d'e- (sans spin)
+    freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations
     
     # Calcul des grandeurs physiques de la simulation
     L_box = L*L_box_unit(N,100) # Vraie taille de la boite à T=100K (référence)
@@ -72,7 +73,7 @@ def simpleMC(input_file = "input.yaml"):
         if i % (num_steps // 10) == 0:
             print(f"Progress: {i / num_steps * 100:.1f}%")
         
-        if step % 100 == 0:
+        if step % freq_save == 0:
             saved_occuaptions.append(occupation_step.copy())  # on stocke la matrice
         
         # Génération d'une nouvelle configuration proposée
@@ -120,6 +121,7 @@ def MC_multiT(input_file = "input.yaml"):
     Tmin = config["Tmin"]
     Tmax = config["Tmax"]
     Ntemp = config["Ntemp"]
+    freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations
     T_values = np.linspace(Tmin, Tmax, Ntemp)    
     num_steps = config["step"]
     L = config["L"]           # Adimensionée
@@ -172,7 +174,7 @@ def MC_multiT(input_file = "input.yaml"):
             if i % (num_steps // 10) == 0:
                 print(f"Progress: {i / num_steps * 100:.1f}%")
             
-            if step % 100 == 0:
+            if step % freq_save == 0:
                 saved_occupations.append(occupation_step.copy())  # on stocke la matrice
             
             # Génération d'une nouvelle configuration proposée
