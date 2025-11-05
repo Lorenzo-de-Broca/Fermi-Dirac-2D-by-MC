@@ -14,6 +14,7 @@ def CI_random(N, n_max):
 def occupations_0(n_max):
     return np.zeros((2*n_max+1, 2*n_max+1))
 
+
 N=7
 n_max=5
 
