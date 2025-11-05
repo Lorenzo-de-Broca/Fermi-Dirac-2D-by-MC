@@ -1,34 +1,34 @@
 import numpy as np
 from scipy.optimize import curve_fit
+from scipy.special import expit
 import matplotlib.pyplot as plt
 
-def fermi_dirac(E, beta, mu):
-    """Fonction Fermi-Dirac 1/(exp(beta*(E-mu)) + 1)."""
-    # éviter overflow numérique pour grandes valeurs
-    x = beta * (E - mu)
-    # stable: pour grandes valeurs positives exp(x) peut overflow, use np.where
-    out = np.empty_like(x, dtype=float)
-    pos = x > 50
-    neg = x < -50
-    mid = ~(pos | neg)
-    out[pos] = 1.0 / (np.exp(x[pos]) + 1.0)         # close to 0
-    out[neg] = 1.0                                 # close to 1
-    out[mid] = 1.0 / (np.exp(x[mid]) + 1.0)
-    return out
+# tailles d'affichage
+title = 20
+label = 18
+legend = 16
+ticks = 14
+plt.rcParams['xtick.labelsize'] = ticks
+plt.rcParams['ytick.labelsize'] = ticks
 
-def fit_fermi_dirac(energies, occupancy, p0=None, bounds=None, sigma=None, plot_result=True):
+def fermi_dirac_stable(E, beta, mu):
+    """Fermi-Dirac numériquement stable via expit."""
+    return expit(-beta * (E - mu))
+
+
+def fit_fermi_dirac_mu(energies, occupancy, kb_T_adim, Ef=None,
+                       p0=None, bounds=None, sigma=None, plot_result=True):
     """
-    Ajuste occupancy = fermi_dirac(energies; beta, mu).
-    energies, occupancy : 1D arrays (ou masked) de même longueur.
-    p0 : initial guess [beta, mu] (optionnel)
-    bounds : bounds for curve_fit, e.g. ([0, E_min], [np.inf, E_max])
-    sigma : optional uncertainties for weighting (same length as data)
-    Returns (popt, pcov, mask) where popt = [beta, mu].
+    Ajuste occupancy(E) = fermi_dirac(E; beta=1/kb_T_adim, mu) en ne faisant varier
+    que mu (beta fixé à 1/kb_T_adim).
+    Retour: popt (mu,), pcov, valid_mask
     """
-    # Flatten and mask invalid values (nan or inf)
     E = np.asarray(energies).flatten()
     y = np.asarray(occupancy).flatten()
 
+    beta_adim = 1.0 / kb_T_adim
+
+    # mask des valeurs valides
     valid = np.isfinite(E) & np.isfinite(y)
     if not np.any(valid):
         raise ValueError("Aucune donnée valide pour le fit (tout NaN/inf).")
@@ -37,38 +37,63 @@ def fit_fermi_dirac(energies, occupancy, p0=None, bounds=None, sigma=None, plot_
     ysel = y[valid]
     sigsel = None if sigma is None else np.asarray(sigma).flatten()[valid]
 
-    # initial guesses if not fournies
-    if p0 is None:
-        # beta ~ 1/(k_B T) if you know T; otherwise use 1.0
-        beta0 = 1.0
-        mu0 = np.median(Esel)
-        p0 = [beta0, mu0]
+    # trier par énergie (utile pour interpolation)
+    order = np.argsort(Esel)
+    Esorted = Esel[order]
+    ysorted = ysel[order]
 
-    # default bounds: beta>0, mu inside data range
-    if bounds is None:
-        Emin, Emax = np.min(Esel), np.max(Esel)
-        bounds = ([0.0, Emin-abs(Emax-Emin)], [np.inf, Emax+abs(Emax-Emin)])
-
-    # call curve_fit
+    # Estimer mu0 comme l'énergie où y croise 0.5 (interpolation linéaire)
     try:
-        popt, pcov = curve_fit(fermi_dirac, Esel, ysel, p0=p0, bounds=bounds, sigma=sigsel, maxfev=100000)
+        # si ysorted est monotone (typique pour FD), on interpole
+        mu0_est = np.interp(0.5, ysorted[::-1], Esorted[::-1])  # on inverse si décroissant
+    except Exception:
+        mu0_est = np.median(Esorted)
+
+    if p0 is None:
+        p0 = [mu0_est]
+
+    # bornes pour mu : par défaut dans la plage d'energie (avec marge)
+    Emin, Emax = np.min(Esorted), np.max(Esorted)
+    if bounds is None:
+        margin = 0.1 * max(1.0, (Emax - Emin))  # petite marge relative
+        lower = Emin - margin
+        upper = Emax + margin
+        bounds = ([lower], [upper])
+    else:
+        # s'assurer que bounds a la forme ([low], [high]) pour 1 paramètre
+        # si utilisateur a passé deux scalaires, on les convertit
+        if (np.isscalar(bounds[0]) and np.isscalar(bounds[1])):
+            bounds = ([bounds[0]], [bounds[1]])
+
+    # fonction à un paramètre mu (beta fixé)
+    def fermi_mu(Earr, mu):
+        return fermi_dirac_stable(Earr, beta_adim, mu)
+
+    # appel à curve_fit
+    try:
+        # si sigma est fournie et représente des écarts-types réels, on peut vouloir absolute_sigma=True
+        popt, pcov = curve_fit(fermi_mu, Esorted, ysorted, p0=p0, bounds=bounds,
+                               sigma=sigsel, maxfev=200000)
     except Exception as e:
-        # fallback: try looser options or raise helpful error
         raise RuntimeError(f"curve_fit a échoué : {e}")
 
-    if plot_result:
-        # Plot data and fitted curve
-        E_plot = np.linspace(np.min(Esel), np.max(Esel), 400)
-        y_fit = fermi_dirac(E_plot, *popt)
+    mu_fit = popt[0]
 
-        plt.figure(figsize=(6,4))
-        plt.scatter(Esel, ysel, s=20, alpha=0.6, label='données (sélectionnées)')
-        plt.plot(E_plot, y_fit, 'r-', lw=2, label=f'fit FD\nbeta={popt[0]:.4g}, mu={popt[1]:.4g}')
-        plt.xlabel('Énergie')
-        plt.ylabel('Occupation')
+    if plot_result:
+        E_plot = np.linspace(Emin, Emax, 800)
+        y_fit = fermi_mu(E_plot, mu_fit)
+
+        plt.figure(figsize=(7,4))
+        plt.plot(E, y, "+b", label='données (brutes)')
+        plt.plot(E_plot, y_fit, "r-", lw=2, label=f"fit FD (β={beta_adim:.3g}, μ={mu_fit:.4g})")
+        if Ef is not None:
+            plt.axvline(Ef, linestyle='--', color='k', label=f"E_F = {Ef:.3g}")
+        plt.axvline(mu_fit, linestyle='--', color='g', label=f"μ_fit = {mu_fit:.3g}")
+        plt.title("Fit de la distribution Fermi-Dirac (μ fixé)", fontsize=title)
+        plt.xlabel('Énergie', fontsize=label)
+        plt.ylabel('Occupation', fontsize=label)
         plt.legend(fontsize=12)
         plt.grid(True)
         plt.show()
 
     return popt, pcov, valid
-
