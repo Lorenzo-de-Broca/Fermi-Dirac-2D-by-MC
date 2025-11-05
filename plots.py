@@ -179,7 +179,7 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
     
         plt.show()
      
-def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalues, L):
+def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalues, L, color):
     """
     Fonction pour tracer la distribution d'énergie des particules dans le système.
     
@@ -213,11 +213,11 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
 
     if N == np.min(Nvalues):
         plt.figure(figsize=(8,6))
-        # Pour tracer l'énergie de Fermi
-        y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
-        x_fermi = [Ef, Ef]
-        plt.plot(x_fermi, y_fermi, 'r--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
-    plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), \
+    # Pour tracer l'énergie de Fermi
+    y_fermi = [0,np.max(occupation_levels_masked/(degenerescence_levels_masked*step))*1.1]
+    x_fermi = [Ef, Ef]
+    plt.plot(x_fermi, y_fermi, color+'--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
+    plt.plot(energy_levels_masked, occupation_levels_masked/(degenerescence_levels_masked*step), color, \
         label='N = {}'.format(N))#, markersize=5, "b+",
     if N == np.max(Nvalues):
         #affichage des courbes pour chaque T

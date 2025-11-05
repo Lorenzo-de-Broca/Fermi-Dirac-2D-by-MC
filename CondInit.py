@@ -120,6 +120,5 @@ def Fermi_Dirac_distribution(E_adim, mu_adim, T_adim):
     return(1/(np.exp((E_adim-mu_adim)/T_adim)+1))
     
     
-    
 def occupations_0(n_max):
     return np.zeros((2*n_max+1, 2*n_max+1))

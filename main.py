@@ -230,7 +230,12 @@ def MC_multiN(input_file = "input.yaml"):
     num_steps = config["step"]
     L = config["L"]    # Adimensionée
     
+    #definition of plot colors (needed to plot Ef and corresponding distribution w/ same color)
+    color_array = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+    i_color = 0
     for N in N_values:
+        color = color_array[i_color % len(color_array)]
+        i_color += 1
         if N == 0:
             print(f"\n N = 0, skipping this simulation.")
             continue
@@ -310,7 +315,7 @@ def MC_multiN(input_file = "input.yaml"):
         ## Trace les graphiques 
         
         #plot_occupation(occupation_arr, n_max, step, T)
-        plot_energy_distribution_multiN(occupation_arr, n_max, E_f, step, T, N, N_values, L_box)
+        plot_energy_distribution_multiN(occupation_arr, n_max, E_f, step, T, N, N_values, L_box, color)
     
     return()
 
