@@ -6,9 +6,9 @@ from CondInit import kbT_adim, mu_adim_fct, Fermi_Dirac_distribution, Energy_Fer
 
 
 # On définit la taille des légendes sur les figures 
-title = 20
-label = 18
-legend = 16
+title = 14
+label = 12
+legend = 12
 ticks = 14
 markersize = 12
 
@@ -100,14 +100,16 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, N, T, L_box):
     #plt.plot(x_E_Fermi_kbT, y_E_Fermi, 'g--', label=f'Énergie de Fermi + k_b*T : {Ef + T_adim:.2f} adimensionnée')
 
     plt.plot(x_Fermi_Dirac, y_Fermi_Dirac, 'k-', label='Distribution de Fermi-Dirac théorique')
-    plt.legend(fontsize=legend)
-    plt.title(f'Distribution d\'énergie des particules (moyenne sur {step:.1e} steps), pour N={N*2:.0f} e- et T={T}K', fontsize=title)
-    plt.xlabel('Énergie (adimensionnée)', fontsize=label)
+    #plt.legend(fontsize=legend)
+    plt.legend(fontsize=legend, loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.title(f'Energie des particules (moy. sur {step:.1e} steps), pour N={N*2} e- et T={T}K', fontsize=title)
+    plt.xlabel('Énergie (E0)', fontsize=label)
     plt.ylabel('Occupation', fontsize=label)
     plt.grid()
     
     # Sauvegarde
-    filename1 = os.path.join(output_dir, f"energy_distribution_N{N*2:.0f}_T{T:.0e}K_step{step:.1e}.png")
+    filename1 = os.path.join(output_dir, f"FD_N{N*2}_T{T:.0e}K_step{step:.1e}.png")
+    plt.tight_layout()
     plt.savefig(filename1, dpi=300, bbox_inches="tight")
     
     plt.show()
@@ -116,7 +118,7 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, N, T, L_box):
     plt.plot(energy_levels_masked, degenerescence_levels_masked, "g+", markersize=8, label='Dégénérescence des niveaux d\'énergie')
     plt.legend(fontsize=legend)
     plt.title(f'Dégénérescence des niveaux d\'énergie, T={T}K', fontsize=title)
-    plt.xlabel('Énergie (adimensionnée)', fontsize=label)
+    plt.xlabel('Énergie (E0)', fontsize=label)
     plt.ylabel('Dégénérescence', fontsize=label)
     plt.grid()
     
@@ -161,15 +163,16 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
     distrib_FD = occupation_levels_masked/(degenerescence_levels_masked*step)
 
     if T == np.min(Tvalues):
+        #TODO supprimer plot E_F ?
         plt.figure(figsize=(8,6))
         # Pour tracer l'énergie de Fermi
         y_fermi = [0,np.max(distrib_FD)*1.1]
         x_fermi = [Ef, Ef]
-        plt.plot(x_fermi, y_fermi, 'r--', label=f'E_F adimensionnée : {Ef:.2f}')
+        #plt.plot(x_fermi, y_fermi, 'r--', label=f'E_F = {Ef:.2f} E0')
     
         
     plt.plot(energy_levels_masked, distrib_FD, color+'+', \
-        label=f'Simulation pour T = {T:.0f}K')#, markersize=5, "b+",
+        label=f'T = {T:.0f}K')#, markersize=5, "b+",
 
     # Calcul de la distribution de Fermi-Dirac théorique pour comparer 
     x_Fermi_Dirac = np.linspace(0, np.max(energy_levels_masked), 1000)
@@ -178,7 +181,7 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
     T_adim = kbT_adim(L_box, T)
     y_Fermi_Dirac = Fermi_Dirac_distribution(x_Fermi_Dirac, mu_adim,T_adim) # théorique
     
-    plt.plot(x_Fermi_Dirac, y_Fermi_Dirac, color, label='Distribution de Fermi-Dirac théorique')
+    plt.plot(x_Fermi_Dirac, y_Fermi_Dirac, color)#, label=f'F-D théorique')
     
     # On cherche les indices autour de 1/2 (robuste)
     target = 0.5
@@ -216,13 +219,14 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
         mu_adim_estime = E_below + (target - D_below) * (E_above - E_below) / (D_above - D_below)
     #print("Énergie juste en dessous :", E_below)
     #print("Énergie juste au-dessus :", E_above)
-    print("Estimation du niveau de Fermi (mu) ≈", mu_adim_estime)
+    print(f"Estimation du potentiel chimique : μ ≈ {mu_adim_estime:.2f} E0")
 
     if T == np.max(Tvalues):
         #affichage des courbes pour chaque T
         plt.legend(fontsize=legend)
-        plt.title(f'Distribution d\'énergie des particules (moyenne sur {step:.0e} pas) pour différents T (N = {N*2})', fontsize=title)
-        plt.xlabel('Énergie (adimensionnée)', fontsize=label)
+        #plt.legend(fontsize=legend, loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.title(f'Energie des particules (moy. sur {step:.0e} steps) pour différents T (N = {N*2})', fontsize=title)
+        plt.xlabel('Énergie (E0)', fontsize=label)
         plt.xlim(0, 4*Ef)
         plt.ylabel('Occupation', fontsize=label)
         plt.grid()
@@ -232,7 +236,8 @@ def plot_energy_distribution_multiT(occupation_arr, n_max, Ef, step, N, T, Tvalu
         Nbre_simus = np.size(Tvalues)
         Tmin = np.min(Tvalues)
         Tmax = np.max(Tvalues)
-        filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={N*2}_T={Tmin:.0f}_a_{Tmax:.0f}K_steps={step:.1e}.png")
+        filename = os.path.join(output_dir, f"FD_{Nbre_simus}simus_N{N*2}_T{Tmin:.0f}_a_{Tmax:.0f}K_steps{step:.1e}.png")
+        #plt.tight_layout()
         plt.savefig(filename, dpi=300, bbox_inches="tight")
         
         plt.show()
@@ -278,11 +283,12 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
     if N == np.min(Nvalues):
         plt.figure(figsize=(8,6))
     # Pour tracer l'énergie de Fermi
-    y_fermi = [0,np.max(distrib_FD)*1.1]
+    #y_fermi = [0,np.max(distrib_FD)*1.1]
+    y_fermi = [0,1] #sinon chaque Ef a une taille différente 
     x_fermi = [Ef, Ef]
-    plt.plot(x_fermi, y_fermi, color+'--', label=f'Énergie de Fermi adimensionnée : {Ef:.2f}')
+    #plt.plot(x_fermi, y_fermi, color+'--', label=f'E_F = {Ef:.2f} E0')
     plt.plot(energy_levels_masked, distrib_FD, color+'+', \
-        label=f'Simulation pour N = {N*2:.0f}')#, markersize=5, "b+",
+        label=f'N = {N*2:.0f}')#, markersize=5, "b+",
         # Calcul de la distribution de Fermi-Dirac théorique pour comparer 
     x_Fermi_Dirac = np.linspace(0, np.max(energy_levels_masked), 1000)
     
@@ -290,7 +296,7 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
     T_adim = kbT_adim(L_box, T)
     y_Fermi_Dirac = Fermi_Dirac_distribution(x_Fermi_Dirac, mu_adim,T_adim) # théorique
     
-    plt.plot(x_Fermi_Dirac, y_Fermi_Dirac, color, label='Distribution de Fermi-Dirac théorique')
+    plt.plot(x_Fermi_Dirac, y_Fermi_Dirac, color)#, label='F-D théorique')
     
     # On cherche les indices autour de 1/2 (robuste)
     target = 0.5
@@ -327,13 +333,14 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
         mu_adim_estime = E_below + (target - D_below) * (E_above - E_below) / (D_above - D_below)
     #print("Énergie juste en dessous :", E_below)
     #print("Énergie juste au-dessus :", E_above)
-    print("Estimation du niveau de Fermi (mu) ≈", mu_adim_estime)
+    print(f"Estimation du potentiel chimique : μ ≈ {mu_adim_estime:.2f} E0")
     
     if N == np.max(Nvalues):
         #affichage des courbes pour chaque T
         plt.legend(fontsize=legend)
-        plt.title(f'Distribution d\'énergie des particules (moyenne sur {step:.1e} steps) pour différents N (T = {T:.0f}K)', fontsize=title)
-        plt.xlabel('Énergie (adimensionnée)',fontsize=label)
+        #plt.legend(fontsize=legend, loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.title(f'Energie des particules (moy. sur {step:.1e} steps) pour différents N (T = {T:.0f}K)', fontsize=title)
+        plt.xlabel('Énergie (E0)',fontsize=label)
         plt.xlim(0, 4*Ef)
         plt.ylabel('Occupation', fontsize=label)
         plt.grid()
@@ -343,13 +350,14 @@ def plot_energy_distribution_multiN(occupation_arr, n_max, Ef, step, T, N, Nvalu
         Nbre_simus = np.size(Nvalues)
         Nmin = np.min(Nvalues)
         Nmax = np.max(Nvalues)
-        filename = os.path.join(output_dir, f"E_distrib_{Nbre_simus}simulations_N={Nmin*2}_a_{Nmax*2}_T={T:.0f}K_steps={step:.1e}.png")
+        filename = os.path.join(output_dir, f"FD_{Nbre_simus}simus_N{Nmin*2}_a_{Nmax*2}_T{T:.0f}K_steps{step:.1e}.png")
+        #plt.tight_layout()
         plt.savefig(filename, dpi=300, bbox_inches="tight")
         
         plt.show()
     return mu_adim_estime, distrib_FD, energy_levels_masked
      
-def plot_mu_vs_T(T_values, mu_values, mu_values_fit, L_box, E_f):
+def plot_mu_vs_T(T_values, mu_values, mu_values_fit, L_box, E_f, step):
     """
     Fonction pour tracer le potentiel chimique adimensionné en fonction de la température.
     
@@ -365,19 +373,28 @@ def plot_mu_vs_T(T_values, mu_values, mu_values_fit, L_box, E_f):
     plt.figure(figsize=(8,6))
 
     valT = np.linspace(np.min(T_values),np.max(T_values),1000)
-    plt.plot(valT, mu_adim_fct(L_box,valT,E_f), label="valeurs théoriques")
-    plt.plot(T_values, mu_values, 'r+', markersize = markersize, label="Mu estimés par simulation (recherche de FD(E) = 1/2)")
-    plt.plot(T_values, mu_values_fit, 'g+', markersize = markersize, label="Mu estimés par simulation (fit de Fermi-Dirac)")
+    plt.plot(valT, mu_adim_fct(L_box,valT,E_f), label="μ(T) théorique")
+    plt.plot(T_values, mu_values, 'r+', markersize = markersize, label="μ estimé par recherche de FD(E) = 1/2")
+    plt.plot(T_values, mu_values_fit, 'g+', markersize = markersize, label="μ estimé par fit de Fermi-Dirac")
     N = 2*np.pi*E_f
-    plt.title(f'Potentiel chimique adimensionné en fonction de T (N = {N})', fontsize=title)
+    plt.title(f'Potentiel chimique μ en fonction de T (N = {N})', fontsize=title)
     plt.xlabel('T (K)', fontsize=label)
     plt.ylabel('mu_adim', fontsize=label)
     plt.legend(fontsize=legend)
     plt.grid()
+    #save figures
+    output_dir = "fig/multiT"
+    os.makedirs(output_dir, exist_ok=True)
+    Nbre_simus = np.size(T_values)
+    Tmin = np.min(T_values)
+    Tmax = np.max(T_values)
+    filename = os.path.join(output_dir, f"μ_{Nbre_simus}simus_N{N*2}_T{Tmin:.0f}_a_{Tmax:.0f}K_steps{step:.1e}.png")
+    plt.savefig(filename, dpi=300, bbox_inches="tight")
+    
     plt.show()
     
 
-def plot_mu_vs_N(N_values, mu_values, mu_values_fit, L_box, T):
+def plot_mu_vs_N(N_values, mu_values, mu_values_fit, L_box, T, step):
     """
     Fonction pour tracer le potentiel chimique adimensionné en fonction de la température.
     
@@ -393,12 +410,21 @@ def plot_mu_vs_N(N_values, mu_values, mu_values_fit, L_box, T):
     plt.figure(figsize=(8,6))
 
     valN = np.linspace(np.min(N_values),np.max(N_values),1000) #N sont tjrs divisés par 2 pr le spin
-    plt.plot(valN*2, mu_adim_fct(L_box,T,Energy_Fermi_adim(valN*2)), label="valeurs théoriques")
-    plt.plot(N_values*2, mu_values, 'r+', markersize = markersize, label="Mu estimés par simulation (recherche de FD(E) = 1/2)")
-    plt.plot(N_values*2, mu_values_fit, 'g+', markersize = markersize, label="Mu estimés par simulation (fit de Fermi-Dirac)")
-    plt.title(f'Potentiel chimique adimensionné en fonction de N (T = {T} K)', fontsize=title)
+    plt.plot(valN*2, mu_adim_fct(L_box,T,Energy_Fermi_adim(valN*2)), label="μ(N) théorique")
+    plt.plot(N_values*2, mu_values, 'r+', markersize = markersize, label="μ estimé par recherche de FD(E) = 1/2")
+    plt.plot(N_values*2, mu_values_fit, 'g+', markersize = markersize, label="μ estimé par fit de Fermi-Dirac")
+    plt.title(f'Potentiel chimique μ en fonction de N (T = {T} K)', fontsize=title)
     plt.xlabel('N', fontsize=label)
     plt.ylabel('mu_adim', fontsize=label)
     plt.legend(fontsize=legend)
     plt.grid()
+    #save figures
+    output_dir = "fig/multiN"
+    os.makedirs(output_dir, exist_ok=True)
+    Nbre_simus = np.size(N_values)
+    Nmin = np.min(N_values)
+    Nmax = np.max(N_values)
+    filename = os.path.join(output_dir, f"μ_{Nbre_simus}simus_N{Nmin*2}_a_{Nmax*2}_T{T:.0f}K_steps{step:.1e}.png")
+    plt.savefig(filename, dpi=300, bbox_inches="tight")
+
     plt.show()

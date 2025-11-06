@@ -1,15 +1,15 @@
-step: 10000
+step: 1000000
 L: 1
 freq_save: 100
 
 # for simple MC
 N: 100
-T: 10
+T: 100
 # for multiT simulations
 Tmin: 0
 Tmax: 100
 deltaT: 20
 # for multiN simulations
-Nmin: 25
+Nmin: 50
 Nmax: 200
-deltaN: 25
+deltaN: 50

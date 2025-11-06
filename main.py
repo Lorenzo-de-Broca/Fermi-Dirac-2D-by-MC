@@ -33,7 +33,7 @@ def simpleMC(input_file = "input.yaml"):
     freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations
     
     # Calcul des grandeurs physiques de la simulation
-    L_box = L*L_box_unit() # Vraie taille de la boite à T=100K (référence)
+    L_box = L*L_box_unit() # Vraie taille de la boite à T=100K et N=50 (référence)
     E0 = Energy_unit(L_box)
     k0 = wave_vector_unit(L_box)
     #  Calcul des grandeurs adimensionnées de la simulation
@@ -231,7 +231,7 @@ def MC_multiT(input_file = "input.yaml"):
         list_mu_adim_fit.append(mu_fit)
 
         
-    plot_mu_vs_T(T_values, list_mu_adim, list_mu_adim_fit, L_box, E_f)
+    plot_mu_vs_T(T_values, list_mu_adim, list_mu_adim_fit, L_box, E_f, step)
 
     
     return()
@@ -350,7 +350,7 @@ def MC_multiN(input_file = "input.yaml"):
         mu_fit = float(popt[0])
         list_mu_adim_fit.append(mu_fit)
         
-    plot_mu_vs_N(N_values, list_mu_adim, list_mu_adim_fit, L_box, T)
+    plot_mu_vs_N(N_values, list_mu_adim, list_mu_adim_fit, L_box, T, step)
 
     return()
 
