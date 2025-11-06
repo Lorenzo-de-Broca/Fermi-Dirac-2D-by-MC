@@ -100,7 +100,7 @@ def simpleMC(input_file = "input.yaml"):
     print("Monte Carlo simulation completed.")
     
     # Sauvegarde finale
-    os.makedirs("animations", exist_ok=True)
+    os.makedirs("animations_file", exist_ok=True)
     np.savez_compressed(f"animations_file/energy_distribution_N{N*2:.0f}_T{T:.0e}K_step{step:.1e}_freq_save{freq_save:.0f}.npz", *saved_occuaptions)
     
     print("Final occupation state:")
