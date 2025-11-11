@@ -10,6 +10,6 @@ Tmin: 0
 Tmax: 500
 deltaT: 50
 # for multiN simulations
-Nmin: 10
+Nmin: 50
 Nmax: 200
-deltaN: 10
+deltaN: 30
