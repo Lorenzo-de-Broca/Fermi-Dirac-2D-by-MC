@@ -7,9 +7,9 @@ N: 100
 T: 50
 # for multiT simulations
 Tmin: 10
-Tmax: 200
+Tmax: 110
 deltaT: 20
 # for multiN simulations
-Nmin: 10
+Nmin: 50
 Nmax: 200
-deltaN: 10
+deltaN: 30
