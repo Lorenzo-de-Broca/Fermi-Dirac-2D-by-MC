@@ -119,6 +119,17 @@ def Fermi_Dirac_distribution(E_adim, mu_adim, T_adim):
     """
     return(1/(np.exp((E_adim-mu_adim)/T_adim)+1))
     
+
+def Maxwell_Boltzmann_distribution(E_adim, mu_adim, T_adim):
+    """ 
+    Calcule la distribution de Fermi Dirac pour une énergie et une température donnée.
     
+    Args : 
+        - E_adim (float) : énergie adimensionnée
+        - mu_adim (float) : potentiel chimique adimensionné  
+        - T_adim (float) : température adimensionnée
+    """
+    return((np.exp(-(E_adim-mu_adim)/T_adim)))
+
 def occupations_0(n_max):
     return np.zeros((2*n_max+1, 2*n_max+1))

@@ -84,7 +84,7 @@ def fit_fermi_dirac_mu(energies, occupancy, kb_T_adim, T, Ef=None,
         y_fit = fermi_mu(E_plot, mu_fit)
 
         plt.figure(figsize=(7,4))
-        plt.plot(E, y, "+b", label='données (brutes)')
+        plt.plot(E, y, "+b", label='données (brutes)',markersize=8)
         plt.plot(E_plot, y_fit, "r-", lw=2, label=f"fit FD (β={beta_adim:.3g}, μ={mu_fit:.4g})")
         if Ef is not None:
             plt.axvline(Ef, linestyle='--', color='k', label=f"E_F = {Ef:.3g}")

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from CondInit import kbT_adim, mu_adim_fct, Fermi_Dirac_distribution, Energy_Fermi_adim
+from CondInit import kbT_adim, mu_adim_fct, Fermi_Dirac_distribution, Energy_Fermi_adim, Maxwell_Boltzmann_distribution
 
 
 # On définit la taille des légendes sur les figures 
@@ -90,26 +90,30 @@ def plot_energy_distribution(occupation_arr, n_max, Ef, step, N, T, L_box):
     mu_adim = mu_adim_fct (L=L_box, T=T, E_f=Ef)
     T_adim = kbT_adim(L_box, T)
     y_Fermi_Dirac = Fermi_Dirac_distribution(x_Fermi_Dirac, mu_adim,T_adim) # théorique
-
+    y_Maxwelle_Boltzmann = Maxwell_Boltzmann_distribution(x_Fermi_Dirac, mu_adim,T_adim) # théorique
     Fermi_Dirac_MC = occupation_levels_masked/(degenerescence_levels_masked*step)
     
     plt.figure(figsize=(8,6))
     #plt.plot(energy_levels, occupation_levels, "r", markersize=8, label='Occupation des niveaux d\'énergie')
-    plt.plot(energy_levels_masked, Fermi_Dirac_MC, "b+", markersize=5, label='Occupation par niveau d\'énergie sans dégénérescence')
-    plt.plot(x_E_Fermi, y_E_Fermi, 'r--', label=f'Énergie de Fermi : {Ef:.2f} adimensionnée')
+    plt.plot(energy_levels_masked, Fermi_Dirac_MC, "b+", markersize=7, label='Occupation par niveau d\'énergie')
+    plt.plot(x_E_Fermi, y_E_Fermi, 'r--', label=f'Énergie de Fermi : {Ef:.2f} (adim)')
     #plt.plot(x_E_Fermi_kbT, y_E_Fermi, 'g--', label=f'Énergie de Fermi + k_b*T : {Ef + T_adim:.2f} adimensionnée')
 
     plt.plot(x_Fermi_Dirac, y_Fermi_Dirac, 'k-', label='Distribution de Fermi-Dirac théorique')
+    plt.plot(x_Fermi_Dirac, y_Maxwelle_Boltzmann, 'g-', label='Distribution de Maxwell-Boltzmann théorique')
     #plt.legend(fontsize=legend)
-    plt.legend(fontsize=legend, loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.legend(fontsize=legend) #, loc='center left', bbox_to_anchor=(1, 0.5))
     plt.title(f'Energie des particules (moy. sur {step:.1e} steps), pour N={N*2} e- et T={T}K', fontsize=title)
     plt.xlabel('Énergie (E0)', fontsize=label)
     plt.ylabel('Occupation', fontsize=label)
+    # Fixer les limites des axes
+    plt.xlim(0, np.max(energy_levels_masked) * 1.1)
+    plt.ylim(-0.05, 1.1)
     plt.grid()
     
     # Sauvegarde
     filename1 = os.path.join(output_dir, f"FD_N{N*2}_T{T:.0e}K_step{step:.1e}.png")
-    plt.tight_layout()
+    #plt.tight_layout()
     plt.savefig(filename1, dpi=300, bbox_inches="tight")
     
     plt.show()

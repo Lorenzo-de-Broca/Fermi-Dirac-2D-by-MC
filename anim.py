@@ -35,9 +35,11 @@ num_steps = config["step"]
 N = int(config["N"]/2)
 freq_save = config.get("freq_save", 100)  # Fréquence de sauvegarde des occupations
 
+print(f"Chargement des données depuis le fichier pour N={N*2}, T={T}K, step={step}, freq_save={freq_save}...")
 data_file = (f"animations_file/energy_distribution_N{N*2:.0f}_T{T:.0e}K_step{step:.1e}_freq_save{freq_save:.0f}.npz")
 #data_file = (f"occupations.npz")
 data = np.load(data_file)
+print("Données chargées.")
 
 matrices = [data[key] for key in data]
 n_max = (matrices[0].shape[0] - 1) // 2
